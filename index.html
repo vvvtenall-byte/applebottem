@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HONEYCOMB UBG</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">⬡</div>
+        <div class="brand-name">HONEYCOMB<br>UBG</div>
+      </div>
+
+      <nav>
+        <button class="nav-item active" data-page="home"><span>⌂</span>HOME</button>
+        <button class="nav-item" data-page="games"><span>▦</span>GAMES</button>
+        <button class="nav-item" data-page="search"><span>⌕</span>SEARCH</button>
+      </nav>
+
+      <button class="nav-item settings-button" id="settingsBtn"><span>⚙</span>SETTINGS</button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">Home <span class="count">252</span></h1>
+          <p>Your calm little corner of the internet.</p>
+        </div>
+      </header>
+
+      <section id="homePage" class="page">
+        <section class="hero">
+          <div class="hero-logo">⬡</div>
+          <h2>HONEYCOMB UBG</h2>
+          <div class="date" id="dateText"></div>
+
+          <div class="search-pill" id="homeSearch">
+            <span>⌕</span>
+            <input id="homeSearchInput" placeholder="Search games..." autocomplete="off">
+          </div>
+
+          <button class="browse" id="browseBtn">Browse all games →</button>
+        </section>
+
+        <section class="section">
+          <h3>RECENTLY ADDED</h3>
+          <div class="recent-grid" id="recentGrid"></div>
+        </section>
+
+        <section class="section">
+          <h3>ALL GAMES</h3>
+          <div class="game-grid" id="homeGrid"></div>
+        </section>
+      </section>
+
+      <section id="gamesPage" class="page hidden">
+        <div class="new-banner">
+          <div class="banner-image">⬡</div>
+          <div>
+            <small>New to Honeycomb:</small>
+            <strong id="newGameName">Firefox</strong>
+          </div>
+        </div>
+
+        <div class="game-grid large" id="gamesGrid"></div>
+      </section>
+
+      <section id="searchPage" class="page hidden">
+        <div class="search-large">
+          <span>⌕</span>
+          <input id="searchInput" placeholder="Search your games..." autocomplete="off">
+          <kbd>ESC</kbd>
+        </div>
+        <div class="search-results" id="searchResults"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="settingsModal">
+    <aside class="settings-panel">
+      <button class="close" id="closeSettings">×</button>
+      <h2>Settings</h2>
+
+      <label>Tab name</label>
+      <input value="HONEYCOMB UBG" id="tabName">
+
+      <label>Accent color</label>
+      <div class="colors">
+        <button data-color="#ffb900"></button>
+        <button data-color="#ffd23f"></button>
+        <button data-color="#ff9800"></button>
+        <button data-color="#ffe08a"></button>
+        <button data-color="#ffb000"></button>
+      </div>
+
+      <label>Card size</label>
+      <div class="size-buttons">
+        <button data-size="small">Small</button>
+        <button data-size="medium">Medium</button>
+        <button class="selected" data-size="large">Large</button>
+      </div>
+    </aside>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
