@@ -1,3 +1,187 @@
+/* ==========================================
+   APPLEBOTTOM GAME POPUP
+   ========================================== */
+
+#gamePopup {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 100;
+
+    background: rgba(0, 0, 0, 0.78);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+}
+
+
+.game-popup {
+    width: min(850px, 95vw);
+
+    max-height: 90vh;
+
+    overflow: hidden;
+
+    background: #111018;
+
+    border: 1px solid #39333f;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 25px 80px rgba(0, 0, 0, 0.6);
+}
+
+
+.game-popup-header {
+    height: 65px;
+
+    padding: 0 20px;
+
+    border-bottom: 1px solid #2c2831;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+}
+
+
+.game-popup-header > div {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+
+.popup-icon {
+    font-size: 25px;
+}
+
+
+.game-popup-header strong {
+    font-size: 17px;
+}
+
+
+.game-popup-header button {
+    width: 36px;
+
+    height: 36px;
+
+    border: 1px solid #39333f;
+
+    background: #19161e;
+
+    color: white;
+
+    border-radius: 8px;
+
+    font-size: 24px;
+
+    cursor: pointer;
+}
+
+
+.game-popup-header button:hover {
+    background: #29232c;
+}
+
+
+.game-popup-body {
+    min-height: 400px;
+
+    padding: 60px 30px;
+
+    text-align: center;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+}
+
+
+.big-game-icon {
+    font-size: 80px;
+
+    margin-bottom: 15px;
+}
+
+
+.game-popup-body h2 {
+    font-size: 28px;
+
+    margin: 5px 0 10px;
+
+    letter-spacing: 0;
+}
+
+
+.game-popup-body p {
+    color: #99939f;
+
+    max-width: 500px;
+
+    line-height: 1.6;
+
+    font-size: 13px;
+}
+
+
+.play-button {
+    margin-top: 20px;
+
+    padding: 13px 25px;
+
+    border: 0;
+
+    border-radius: 9px;
+
+    background: var(--accent);
+
+    color: white;
+
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+
+.play-button:hover {
+    filter: brightness(1.12);
+
+    transform: translateY(-1px);
+}
+
+
+.coming-soon {
+    margin-top: 20px;
+
+    padding: 12px 20px;
+
+    border-radius: 8px;
+
+    border: 1px solid #38313c;
+
+    color: #88818d;
+
+    font-size: 11px;
+
+    font-weight: 700;
+}
 * {
     box-sizing: border-box;
 }
