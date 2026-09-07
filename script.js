@@ -1,207 +1,621 @@
 // ==========================================
-// APPLEBOTTOM UBG - SCRIPT
+// APPLEBOTTOM UBG
+// Main Website Script
 // ==========================================
 
-// ------------------------------
-// GAME DATA
-// ------------------------------
+
+// ==========================================
+// GAME LIST
+// ==========================================
 
 const games = [
-    ["Firefox", "🦊"],
-    ["Krita", "🎨"],
-    ["Impossible Quiz 2", "❓"],
-    ["Scary Teacher 3D", "🏫"],
-    ["Celeste 64", "🏔️"],
-    ["Balatro Modded", "🃏"],
-    ["2048", "🔢"],
-    ["Adventure", "🗺️"],
-    ["Astro", "🚀"],
-    ["Basketball", "🏀"],
-    ["Block Puzzle", "🧩"],
-    ["Chess", "♟️"],
-    ["Clicker", "🖱️"],
-    ["Cookie Clicker", "🍪"],
-    ["Crossword", "✏️"],
-    ["Doodle Jump", "⬆️"],
-    ["Flappy Bird", "🐦"],
-    ["Geometry Dash", "🔷"],
-    ["Hextris", "⬡"],
-    ["Jetpack", "🎒"],
-    ["Kart", "🏎️"],
-    ["Little Alchemy", "⚗️"],
-    ["Minesweeper", "💣"],
-    ["Pac-Man", "🟡"],
-    ["Portal Puzzle", "🌀"],
-    ["Snake", "🐍"],
-    ["Solitaire", "🃏"],
-    ["Space Invaders", "👾"],
-    ["Tetris", "🟦"],
-    ["Wordle", "🟩"],
-    ["World Guessr", "🌎"],
-    ["Zuma", "🔴"]
+
+    {
+        name: "2048",
+        icon: "🔢",
+        description: "Combine numbers and reach 2048.",
+        url: "https://play2048.co/"
+    },
+
+    {
+        name: "Snake",
+        icon: "🐍",
+        description: "Classic snake game.",
+        url: "https://playsnake.org/"
+    },
+
+    {
+        name: "Tetris",
+        icon: "🟦",
+        description: "Classic block puzzle game.",
+        url: "https://tetris.com/play-tetris"
+    },
+
+    {
+        name: "Chess",
+        icon: "♟️",
+        description: "Play a classic game of chess.",
+        url: "https://www.chess.com/play/computer"
+    },
+
+    {
+        name: "Cookie Clicker",
+        icon: "🍪",
+        description: "Click cookies and build your cookie empire.",
+        url: "https://orteil.dashnet.org/cookieclicker/"
+    },
+
+    {
+        name: "Flappy Bird",
+        icon: "🐦",
+        description: "Fly through the pipes.",
+        url: "#"
+    },
+
+    {
+        name: "Memory",
+        icon: "🧠",
+        description: "Test your memory.",
+        url: "#"
+    },
+
+    {
+        name: "Minesweeper",
+        icon: "💣",
+        description: "Clear the board without hitting a mine.",
+        url: "#"
+    },
+
+    {
+        name: "Solitaire",
+        icon: "🃏",
+        description: "Classic card game.",
+        url: "#"
+    },
+
+    {
+        name: "Word Game",
+        icon: "🔤",
+        description: "Test your vocabulary.",
+        url: "#"
+    },
+
+    {
+        name: "Color Match",
+        icon: "🎨",
+        description: "Match the correct colors.",
+        url: "#"
+    },
+
+    {
+        name: "Block Puzzle",
+        icon: "🧩",
+        description: "Fit the blocks together.",
+        url: "#"
+    },
+
+    {
+        name: "Doodle Jump",
+        icon: "⬆️",
+        description: "Jump as high as possible.",
+        url: "#"
+    },
+
+    {
+        name: "Space Puzzle",
+        icon: "🚀",
+        description: "Solve puzzles in space.",
+        url: "#"
+    },
+
+    {
+        name: "Crossword",
+        icon: "✏️",
+        description: "Solve a crossword puzzle.",
+        url: "#"
+    },
+
+    {
+        name: "Astro",
+        icon: "🌌",
+        description: "Explore the stars.",
+        url: "#"
+    },
+
+    {
+        name: "Basketball",
+        icon: "🏀",
+        description: "Practice your shots.",
+        url: "#"
+    },
+
+    {
+        name: "Kart",
+        icon: "🏎️",
+        description: "Race around the track.",
+        url: "#"
+    },
+
+    {
+        name: "Jetpack",
+        icon: "🎒",
+        description: "Fly through the level.",
+        url: "#"
+    },
+
+    {
+        name: "Little Alchemy",
+        icon: "⚗️",
+        description: "Combine elements.",
+        url: "#"
+    },
+
+    {
+        name: "Pac-Man",
+        icon: "🟡",
+        description: "Classic maze game.",
+        url: "#"
+    },
+
+    {
+        name: "Portal Puzzle",
+        icon: "🌀",
+        description: "Solve portal puzzles.",
+        url: "#"
+    },
+
+    {
+        name: "Falling Sand",
+        icon: "⏳",
+        description: "Experiment with falling particles.",
+        url: "#"
+    },
+
+    {
+        name: "Clicker",
+        icon: "🖱️",
+        description: "Click your way to a high score.",
+        url: "#"
+    },
+
+    {
+        name: "Adventure",
+        icon: "🗺️",
+        description: "Explore a mysterious world.",
+        url: "#"
+    },
+
+    {
+        name: "Hextris",
+        icon: "⬡",
+        description: "Match falling blocks.",
+        url: "#"
+    },
+
+    {
+        name: "Zuma",
+        icon: "🔴",
+        description: "Match the colored pieces.",
+        url: "#"
+    },
+
+    {
+        name: "Fireboy",
+        icon: "🔥",
+        description: "Solve platforming puzzles.",
+        url: "#"
+    },
+
+    {
+        name: "Ice World",
+        icon: "❄️",
+        description: "Explore a frozen world.",
+        url: "#"
+    },
+
+    {
+        name: "Castle Puzzle",
+        icon: "🏰",
+        description: "Solve the castle puzzles.",
+        url: "#"
+    }
+
 ];
 
 
-// ------------------------------
-// HELPER
-// ------------------------------
+// ==========================================
+// ELEMENTS
+// ==========================================
 
-function $(selector) {
-    return document.querySelector(selector);
-}
+const homePage = document.getElementById("home");
+const gamesPage = document.getElementById("games");
+const searchPage = document.getElementById("searchPage");
 
-function $$(selector) {
-    return document.querySelectorAll(selector);
-}
+const recentContainer = document.getElementById("recent");
+const allContainer = document.getElementById("all");
+const gamesContainer = document.getElementById("gamesGrid");
 
+const searchInput = document.getElementById("searchInput");
+const resultsContainer = document.getElementById("results");
 
-// ------------------------------
-// CREATE GAME CARD
-// ------------------------------
+const shade = document.getElementById("shade");
+const settingsButton = document.getElementById("settingsBtn");
+const closeSettings = document.getElementById("closeSettings");
 
-function createCard(game) {
-
-    const name = game[0];
-    const icon = game[1];
-
-    return `
-        <div class="card" data-game="${name}">
-            <div class="thumb">
-                ${icon}
-            </div>
-
-            <div class="name">
-                ${name}
-            </div>
-        </div>
-    `;
-}
+const pageTitle = document.getElementById("pageTitle");
 
 
-// ------------------------------
-// PUT GAMES ON PAGE
-// ------------------------------
+// ==========================================
+// PAGE NAVIGATION
+// ==========================================
 
-function loadGames() {
+function showPage(pageName) {
 
-    const allGames = $("#allGames");
-    const recent = $("#recent");
+    // Hide every page
 
-    // All games
+    document.querySelectorAll(".page").forEach(function(page) {
+        page.classList.remove("active-page");
+    });
 
-    if (allGames) {
 
-        allGames.innerHTML = games
-            .map(createCard)
-            .join("");
+    // Remove active state from buttons
+
+    document.querySelectorAll(".nav").forEach(function(button) {
+        button.classList.remove("active");
+    });
+
+
+    // Show requested page
+
+    if (pageName === "home") {
+
+        homePage.classList.add("active-page");
+
+        pageTitle.innerHTML =
+            'Home <em>252</em>';
 
     }
 
 
-    // Recently added
+    if (pageName === "games") {
 
-    if (recent) {
+        gamesPage.classList.add("active-page");
 
-        recent.innerHTML = games
-            .slice(0, 6)
-            .map(createCard)
-            .join("");
+        pageTitle.innerHTML =
+            'Games <em>252</em>';
 
     }
 
 
-    // Make cards clickable
+    if (pageName === "search") {
 
-    setupGameCards();
-}
+        searchPage.classList.add("active-page");
 
+        pageTitle.innerHTML =
+            'Search <em>252</em>';
 
-// ------------------------------
-// GAMES PAGE
-// ------------------------------
+        setTimeout(function() {
 
-function loadGamesPage() {
+            if (searchInput) {
+                searchInput.focus();
+            }
 
-    const gamesPage = $("#games");
-
-    if (!gamesPage) return;
-
-
-    // Look for an existing game container
-
-    let container =
-        gamesPage.querySelector("#gamesGrid");
-
-
-    // If it doesn't exist, create one
-
-    if (!container) {
-
-        container = document.createElement("div");
-
-        container.id = "gamesGrid";
-
-        container.className = "game-grid";
-
-        gamesPage.appendChild(container);
+        }, 100);
 
     }
 
 
-    container.innerHTML =
-        games.map(createCard).join("");
+    // Activate correct sidebar button
+
+    document.querySelectorAll(".nav").forEach(function(button) {
+
+        if (button.dataset.page === pageName) {
+            button.classList.add("active");
+        }
+
+    });
 
 
-    setupGameCards();
+    // Scroll to top
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 
 }
 
 
-// ------------------------------
-// GAME CARD CLICK
-// ------------------------------
+// ==========================================
+// SIDEBAR BUTTONS
+// ==========================================
 
-function setupGameCards() {
+document.querySelectorAll(".nav").forEach(function(button) {
 
-    $$(".card").forEach(card => {
+    button.addEventListener("click", function() {
 
-        card.onclick = function() {
+        const page = button.dataset.page;
 
-            const gameName =
-                card.dataset.game;
+        showPage(page);
 
-            const game =
-                games.find(g => g[0] === gameName);
+    });
 
-            if (!game) return;
+});
 
-            openGame(game);
 
-        };
+// ==========================================
+// HERO BUTTONS
+// ==========================================
+
+const heroSearch = document.getElementById("heroSearch");
+
+if (heroSearch) {
+
+    heroSearch.addEventListener("click", function() {
+
+        showPage("search");
 
     });
 
 }
 
 
-// ------------------------------
+const browseButton = document.getElementById("browse");
+
+if (browseButton) {
+
+    browseButton.addEventListener("click", function() {
+
+        showPage("games");
+
+    });
+
+}
+
+
+// ==========================================
+// SETTINGS
+// ==========================================
+
+if (settingsButton) {
+
+    settingsButton.addEventListener("click", function() {
+
+        shade.classList.add("open");
+
+    });
+
+}
+
+
+if (closeSettings) {
+
+    closeSettings.addEventListener("click", function() {
+
+        shade.classList.remove("open");
+
+    });
+
+}
+
+
+// Click outside settings drawer
+
+if (shade) {
+
+    shade.addEventListener("click", function(event) {
+
+        if (event.target === shade) {
+
+            shade.classList.remove("open");
+
+        }
+
+    });
+
+}
+
+
+// ESC closes settings
+
+document.addEventListener("keydown", function(event) {
+
+    if (event.key === "Escape") {
+
+        shade.classList.remove("open");
+
+    }
+
+});
+
+
+// ==========================================
+// ACCENT COLORS
+// ==========================================
+
+document.querySelectorAll(".swatches button").forEach(function(button) {
+
+    button.addEventListener("click", function() {
+
+        const color = button.dataset.c;
+
+        document.body.style.setProperty(
+            "--accent",
+            color
+        );
+
+        localStorage.setItem(
+            "applebottomAccent",
+            color
+        );
+
+    });
+
+});
+
+
+// Load saved accent
+
+const savedAccent =
+    localStorage.getItem("applebottomAccent");
+
+if (savedAccent) {
+
+    document.body.style.setProperty(
+        "--accent",
+        savedAccent
+    );
+
+}
+
+
+// ==========================================
+// CARD SIZE
+// ==========================================
+
+document.querySelectorAll(".sizes button").forEach(function(button) {
+
+    button.addEventListener("click", function() {
+
+        document.body.classList.remove(
+            "small",
+            "large"
+        );
+
+        const size = button.dataset.s;
+
+        if (size === "small") {
+
+            document.body.classList.add("small");
+
+        }
+
+        if (size === "large") {
+
+            document.body.classList.add("large");
+
+        }
+
+
+        document.querySelectorAll(".sizes button").forEach(function(b) {
+
+            b.classList.remove("selected");
+
+        });
+
+        button.classList.add("selected");
+
+    });
+
+});
+
+
+// ==========================================
+// GAME CARD CREATOR
+// ==========================================
+
+function createGameCard(game) {
+
+    const card =
+        document.createElement("div");
+
+    card.className = "card";
+
+
+    card.innerHTML = `
+
+        <div class="thumb">
+
+            ${game.icon}
+
+        </div>
+
+        <div class="name">
+
+            ${game.name}
+
+        </div>
+
+    `;
+
+
+    card.addEventListener("click", function() {
+
+        openGame(game);
+
+    });
+
+
+    return card;
+
+}
+
+
+// ==========================================
+// DISPLAY GAMES
+// ==========================================
+
+function displayGames() {
+
+    recentContainer.innerHTML = "";
+
+    allContainer.innerHTML = "";
+
+    gamesContainer.innerHTML = "";
+
+
+    // First 6 = recently added
+
+    games.slice(0, 6).forEach(function(game) {
+
+        recentContainer.appendChild(
+            createGameCard(game)
+        );
+
+    });
+
+
+    // Everything
+
+    games.forEach(function(game) {
+
+        allContainer.appendChild(
+            createGameCard(game)
+        );
+
+    });
+
+
+    // Games page
+
+    games.forEach(function(game) {
+
+        gamesContainer.appendChild(
+            createGameCard(game)
+        );
+
+    });
+
+}
+
+
+displayGames();
+
+
+// ==========================================
 // GAME POPUP
-// ------------------------------
+// ==========================================
 
 function openGame(game) {
 
     // Remove old popup
 
-    const old =
-        $("#gamePopup");
+    const oldPopup =
+        document.getElementById("gamePopup");
 
-    if (old) {
-        old.remove();
+    if (oldPopup) {
+        oldPopup.remove();
     }
-
-
-    const name = game[0];
-    const icon = game[1];
 
 
     const popup =
@@ -216,23 +630,19 @@ function openGame(game) {
 
             <div class="game-popup-header">
 
-                <div class="popup-title">
+                <div>
 
                     <span class="popup-icon">
-                        ${icon}
+                        ${game.icon}
                     </span>
 
                     <strong>
-                        ${name}
+                        ${game.name}
                     </strong>
 
                 </div>
 
-
-                <button
-                    class="popup-close"
-                    id="closeGame"
-                >
+                <button id="closeGame">
                     ×
                 </button>
 
@@ -242,20 +652,28 @@ function openGame(game) {
             <div class="game-popup-body">
 
                 <div class="big-game-icon">
-                    ${icon}
+                    ${game.icon}
                 </div>
 
                 <h2>
-                    ${name}
+                    ${game.name}
                 </h2>
 
                 <p>
-                    This game is ready to be added to APPLEBOTTOM.
+                    ${game.description}
                 </p>
 
-                <div class="coming-soon">
-                    GAME PAGE COMING SOON
-                </div>
+                ${
+                    game.url !== "#"
+                    ?
+                    `<button id="playGame" class="play-button">
+                        PLAY GAME →
+                    </button>`
+                    :
+                    `<div class="coming-soon">
+                        GAME COMING SOON
+                    </div>`
+                }
 
             </div>
 
@@ -269,23 +687,37 @@ function openGame(game) {
 
     // Close button
 
-    const close =
-        $("#closeGame");
-
-    if (close) {
-
-        close.onclick = function() {
+    document
+        .getElementById("closeGame")
+        .addEventListener("click", function() {
 
             popup.remove();
 
-        };
+        });
+
+
+    // Play button
+
+    const playButton =
+        document.getElementById("playGame");
+
+    if (playButton) {
+
+        playButton.addEventListener("click", function() {
+
+            window.open(
+                game.url,
+                "_blank"
+            );
+
+        });
 
     }
 
 
-    // Click outside popup
+    // Click dark background
 
-    popup.onclick = function(event) {
+    popup.addEventListener("click", function(event) {
 
         if (event.target === popup) {
 
@@ -293,521 +725,148 @@ function openGame(game) {
 
         }
 
-    };
-
-}
-
-
-// ------------------------------
-// PAGE NAVIGATION
-// ------------------------------
-
-function page(pageName) {
-
-    // Hide all pages
-
-    $$(".page").forEach(section => {
-
-        section.classList.remove("active");
-
-    });
-
-
-    // Remove active nav
-
-    $$("nav button").forEach(button => {
-
-        button.classList.remove("active");
-
-    });
-
-
-    // Find requested page
-
-    let target;
-
-    if (pageName === "home") {
-
-        target = $("#home");
-
-    }
-
-    else if (pageName === "games") {
-
-        target = $("#games");
-
-    }
-
-    else if (pageName === "search") {
-
-        target = $("#searchPage");
-
-    }
-
-
-    // Show page
-
-    if (target) {
-
-        target.classList.add("active");
-
-    }
-
-
-    // Activate navigation button
-
-    const button =
-        document.querySelector(
-            `nav button[data-page="${pageName}"]`
-        );
-
-
-    if (button) {
-
-        button.classList.add("active");
-
-    }
-
-
-    // Change title
-
-    const title =
-        $("#title");
-
-
-    if (title) {
-
-        if (pageName === "home") {
-
-            title.innerHTML =
-                `Home <i>252</i>`;
-
-        }
-
-        else if (pageName === "games") {
-
-            title.innerHTML =
-                `Games <i>252</i>`;
-
-        }
-
-        else if (pageName === "search") {
-
-            title.innerHTML =
-                `Search <i>252</i>`;
-
-        }
-
-    }
-
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
     });
 
 }
 
 
-// ------------------------------
-// NAVIGATION BUTTONS
-// ------------------------------
-
-$$("nav button[data-page]").forEach(button => {
-
-    button.onclick = function() {
-
-        page(button.dataset.page);
-
-    };
-
-});
-
-
-// ------------------------------
-// BROWSE ALL GAMES
-// ------------------------------
-
-const browse =
-    $("#browse");
-
-
-if (browse) {
-
-    browse.onclick = function() {
-
-        page("games");
-
-    };
-
-}
-
-
-// ------------------------------
-// HERO SEARCH
-// ------------------------------
-
-const heroSearch =
-    $("#heroSearch");
-
-
-if (heroSearch) {
-
-    heroSearch.onclick = function() {
-
-        page("search");
-
-    };
-
-}
-
-
-// ------------------------------
-// SETTINGS
-// ------------------------------
-
-const settings =
-    $("#settings");
-
-
-const shade =
-    $("#shade");
-
-
-const closeSettings =
-    $("#close");
-
-
-if (settings && shade) {
-
-    settings.onclick = function() {
-
-        shade.classList.add("open");
-
-    };
-
-}
-
-
-if (closeSettings && shade) {
-
-    closeSettings.onclick = function() {
-
-        shade.classList.remove("open");
-
-    };
-
-}
-
-
-// Click outside settings
-
-if (shade) {
-
-    shade.onclick = function(event) {
-
-        if (event.target === shade) {
-
-            shade.classList.remove("open");
-
-        }
-
-    };
-
-}
-
-
-// ------------------------------
-// ESC KEY
-// ------------------------------
-
-document.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (event.key === "Escape") {
-
-            // Close settings
-
-            if (shade) {
-
-                shade.classList.remove("open");
-
-            }
-
-
-            // Close game popup
-
-            const popup =
-                $("#gamePopup");
-
-            if (popup) {
-
-                popup.remove();
-
-            }
-
-        }
-
-    }
-);
-
-
-// ------------------------------
+// ==========================================
 // SEARCH
-// ------------------------------
+// ==========================================
 
-const searchInput =
-    $("#searchInput");
+if (searchInput) {
 
+    searchInput.addEventListener("input", function() {
 
-const results =
-    $("#results");
-
-
-if (searchInput && results) {
-
-    searchInput.addEventListener(
-        "input",
-        function() {
-
-            const query =
-                searchInput.value
-                    .trim()
-                    .toLowerCase();
+        const search =
+            searchInput.value
+                .trim()
+                .toLowerCase();
 
 
-            // Empty search
-
-            if (!query) {
-
-                results.innerHTML = `
-                    <div class="result">
-                        Type a game name to search.
-                    </div>
-                `;
-
-                return;
-
-            }
+        resultsContainer.innerHTML = "";
 
 
-            // Search games
+        // Nothing typed
 
-            const matches =
-                games.filter(game =>
-                    game[0]
-                        .toLowerCase()
-                        .includes(query)
-                );
+        if (search === "") {
 
+            resultsContainer.innerHTML = `
 
-            // No results
+                <div class="result">
 
-            if (matches.length === 0) {
+                    Type a game name to search.
 
-                results.innerHTML = `
-                    <div class="result">
-                        No games found.
-                    </div>
-                `;
+                </div>
 
-                return;
+            `;
 
-            }
+            return;
+
+        }
 
 
-            // Results
+        // Find matching games
 
-            results.innerHTML =
-                matches.map(game => `
+        const matches =
+            games.filter(function(game) {
 
-                    <div
-                        class="result"
-                        data-game="${game[0]}"
-                    >
-
-                        <span>
-                            ${game[1]}
-                        </span>
-
-                        ${game[0]}
-
-                    </div>
-
-                `).join("");
-
-
-            // Result clicks
-
-            $$(".result[data-game]").forEach(result => {
-
-                result.onclick = function() {
-
-                    const name =
-                        result.dataset.game;
-
-                    const game =
-                        games.find(
-                            g => g[0] === name
-                        );
-
-                    if (game) {
-
-                        openGame(game);
-
-                    }
-
-                };
+                return game.name
+                    .toLowerCase()
+                    .includes(search);
 
             });
 
-        }
-    );
 
-}
+        // Nothing found
 
+        if (matches.length === 0) {
 
-// ------------------------------
-// ACCENT COLORS
-// ------------------------------
+            resultsContainer.innerHTML = `
 
-$$(".swatches button").forEach(button => {
+                <div class="result">
 
-    button.onclick = function() {
+                    No games found.
 
-        const color =
-            button.dataset.c;
+                </div>
 
+            `;
 
-        if (!color) return;
-
-
-        document.documentElement
-            .style
-            .setProperty(
-                "--accent",
-                color
-            );
-
-
-        localStorage.setItem(
-            "applebottomAccent",
-            color
-        );
-
-    };
-
-});
-
-
-// Load saved accent
-
-const savedAccent =
-    localStorage.getItem(
-        "applebottomAccent"
-    );
-
-
-if (savedAccent) {
-
-    document.documentElement
-        .style
-        .setProperty(
-            "--accent",
-            savedAccent
-        );
-
-}
-
-
-// ------------------------------
-// CARD SIZE
-// ------------------------------
-
-$$(".sizes button").forEach(button => {
-
-    button.onclick = function() {
-
-        const size =
-            button.dataset.s;
-
-
-        document.body.classList.remove(
-            "small",
-            "large"
-        );
-
-
-        if (size === "small") {
-
-            document.body.classList.add(
-                "small"
-            );
+            return;
 
         }
 
 
-        if (size === "large") {
+        // Display results
 
-            document.body.classList.add(
-                "large"
-            );
+        matches.forEach(function(game) {
 
-        }
+            const result =
+                document.createElement("div");
+
+            result.className = "result";
+
+            result.style.cursor = "pointer";
 
 
-        $$(".sizes button").forEach(b => {
+            result.innerHTML = `
 
-            b.classList.remove(
-                "selected"
-            );
+                <b>
+                    ${game.icon}
+                </b>
+
+                ${game.name}
+
+            `;
+
+
+            result.addEventListener("click", function() {
+
+                openGame(game);
+
+            });
+
+
+            resultsContainer.appendChild(result);
 
         });
 
+    });
 
-        button.classList.add(
-            "selected"
-        );
-
-    };
-
-});
+}
 
 
-// ------------------------------
-// TAB NAME
-// ------------------------------
+// ==========================================
+// SETTINGS TAB NAME
+// ==========================================
 
 const tabName =
-    $("#tabName");
+    document.getElementById("tabName");
 
 
 if (tabName) {
 
-    tabName.oninput = function() {
+    tabName.addEventListener("input", function() {
 
         document.title =
-            tabName.value ||
-            "APPLEBOTTOM UBG";
+            tabName.value || "APPLEBOTTOM UBG";
 
-    };
+    });
 
 }
 
 
-// ------------------------------
+// ==========================================
 // DATE + TIME
-// ------------------------------
+// ==========================================
 
-function clock() {
+function updateClock() {
 
-    const date =
-        new Date();
+    const now = new Date();
 
 
-    const text =
-        date.toLocaleDateString(
+    const dateText =
+        now.toLocaleDateString(
             undefined,
             {
                 weekday: "long",
@@ -815,11 +874,11 @@ function clock() {
                 day: "numeric",
                 year: "numeric"
             }
-        )
-        +
-        " • "
-        +
-        date.toLocaleTimeString(
+        );
+
+
+    const timeText =
+        now.toLocaleTimeString(
             undefined,
             {
                 hour: "numeric",
@@ -828,35 +887,35 @@ function clock() {
         );
 
 
-    const dateElement =
-        $("#date");
+    if (document.getElementById("date")) {
+
+        document.getElementById("date").textContent =
+            dateText + " • " + timeText;
+
+    }
 
 
-    if (dateElement) {
+    if (document.getElementById("clock")) {
 
-        dateElement.textContent =
-            text;
+        document.getElementById("clock").textContent =
+            dateText + " — " + timeText;
 
     }
 
 }
 
 
-clock();
+updateClock();
 
 
 setInterval(
-    clock,
+    updateClock,
     30000
 );
 
 
-// ------------------------------
-// START WEBSITE
-// ------------------------------
+// ==========================================
+// START ON HOME
+// ==========================================
 
-loadGames();
-
-loadGamesPage();
-
-page("home");
+showPage("home");
