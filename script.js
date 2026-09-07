@@ -1,322 +1,439 @@
-// ==========================================
+// ======================================================
 // APPLEBOTTOM UBG
-// Main Website Script
-// ==========================================
+// FULL INTERACTIVE WEBSITE SCRIPT
+// ======================================================
 
 
-// ==========================================
+// ======================================================
 // GAME LIST
-// ==========================================
+// ======================================================
 
 const games = [
-
-    {
-        name: "2048",
-        icon: "🔢",
-        description: "Combine numbers and reach 2048.",
-        url: "https://play2048.co/"
-    },
-
-    {
-        name: "Snake",
-        icon: "🐍",
-        description: "Classic snake game.",
-        url: "https://playsnake.org/"
-    },
-
-    {
-        name: "Tetris",
-        icon: "🟦",
-        description: "Classic block puzzle game.",
-        url: "https://tetris.com/play-tetris"
-    },
-
-    {
-        name: "Chess",
-        icon: "♟️",
-        description: "Play a classic game of chess.",
-        url: "https://www.chess.com/play/computer"
-    },
-
-    {
-        name: "Cookie Clicker",
-        icon: "🍪",
-        description: "Click cookies and build your cookie empire.",
-        url: "https://orteil.dashnet.org/cookieclicker/"
-    },
-
-    {
-        name: "Flappy Bird",
-        icon: "🐦",
-        description: "Fly through the pipes.",
-        url: "#"
-    },
-
-    {
-        name: "Memory",
-        icon: "🧠",
-        description: "Test your memory.",
-        url: "#"
-    },
-
-    {
-        name: "Minesweeper",
-        icon: "💣",
-        description: "Clear the board without hitting a mine.",
-        url: "#"
-    },
-
-    {
-        name: "Solitaire",
-        icon: "🃏",
-        description: "Classic card game.",
-        url: "#"
-    },
-
-    {
-        name: "Word Game",
-        icon: "🔤",
-        description: "Test your vocabulary.",
-        url: "#"
-    },
-
-    {
-        name: "Color Match",
-        icon: "🎨",
-        description: "Match the correct colors.",
-        url: "#"
-    },
-
-    {
-        name: "Block Puzzle",
-        icon: "🧩",
-        description: "Fit the blocks together.",
-        url: "#"
-    },
-
-    {
-        name: "Doodle Jump",
-        icon: "⬆️",
-        description: "Jump as high as possible.",
-        url: "#"
-    },
-
-    {
-        name: "Space Puzzle",
-        icon: "🚀",
-        description: "Solve puzzles in space.",
-        url: "#"
-    },
-
-    {
-        name: "Crossword",
-        icon: "✏️",
-        description: "Solve a crossword puzzle.",
-        url: "#"
-    },
-
-    {
-        name: "Astro",
-        icon: "🌌",
-        description: "Explore the stars.",
-        url: "#"
-    },
-
-    {
-        name: "Basketball",
-        icon: "🏀",
-        description: "Practice your shots.",
-        url: "#"
-    },
-
-    {
-        name: "Kart",
-        icon: "🏎️",
-        description: "Race around the track.",
-        url: "#"
-    },
-
-    {
-        name: "Jetpack",
-        icon: "🎒",
-        description: "Fly through the level.",
-        url: "#"
-    },
-
-    {
-        name: "Little Alchemy",
-        icon: "⚗️",
-        description: "Combine elements.",
-        url: "#"
-    },
-
-    {
-        name: "Pac-Man",
-        icon: "🟡",
-        description: "Classic maze game.",
-        url: "#"
-    },
-
-    {
-        name: "Portal Puzzle",
-        icon: "🌀",
-        description: "Solve portal puzzles.",
-        url: "#"
-    },
-
-    {
-        name: "Falling Sand",
-        icon: "⏳",
-        description: "Experiment with falling particles.",
-        url: "#"
-    },
-
-    {
-        name: "Clicker",
-        icon: "🖱️",
-        description: "Click your way to a high score.",
-        url: "#"
-    },
-
-    {
-        name: "Adventure",
-        icon: "🗺️",
-        description: "Explore a mysterious world.",
-        url: "#"
-    },
-
-    {
-        name: "Hextris",
-        icon: "⬡",
-        description: "Match falling blocks.",
-        url: "#"
-    },
-
-    {
-        name: "Zuma",
-        icon: "🔴",
-        description: "Match the colored pieces.",
-        url: "#"
-    },
-
-    {
-        name: "Fireboy",
-        icon: "🔥",
-        description: "Solve platforming puzzles.",
-        url: "#"
-    },
-
-    {
-        name: "Ice World",
-        icon: "❄️",
-        description: "Explore a frozen world.",
-        url: "#"
-    },
-
-    {
-        name: "Castle Puzzle",
-        icon: "🏰",
-        description: "Solve the castle puzzles.",
-        url: "#"
-    }
-
+    ["Firefox", "🦊"],
+    ["Krita", "🎨"],
+    ["Impossible Quiz 2", "❓"],
+    ["Scary Teacher 3D", "🏫"],
+    ["Celeste 64", "🏔️"],
+    ["Balatro Modded", "🃏"],
+    ["2048", "🔢"],
+    ["Adventure", "🗺️"],
+    ["Astro", "🚀"],
+    ["Basketball", "🏀"],
+    ["Block Puzzle", "🧩"],
+    ["Chess", "♟️"],
+    ["Clicker", "🖱️"],
+    ["Cookie Clicker", "🍪"],
+    ["Crossword", "✏️"],
+    ["Doodle Jump", "⬆️"],
+    ["Flappy Bird", "🐦"],
+    ["Geometry Dash", "🔷"],
+    ["Hextris", "⬡"],
+    ["Jetpack", "🎒"],
+    ["Kart", "🏎️"],
+    ["Little Alchemy", "⚗️"],
+    ["Minesweeper", "💣"],
+    ["Pac-Man", "🟡"],
+    ["Portal Puzzle", "🌀"],
+    ["Snake", "🐍"],
+    ["Solitaire", "🃏"],
+    ["Space Invaders", "👾"],
+    ["Tetris", "🟦"],
+    ["Wordle", "🟩"],
+    ["World Guessr", "🌎"],
+    ["Zuma", "🔴"]
 ];
 
 
-// ==========================================
-// ELEMENTS
-// ==========================================
+// ======================================================
+// HELPER FUNCTIONS
+// ======================================================
 
-const homePage = document.getElementById("home");
-const gamesPage = document.getElementById("games");
-const searchPage = document.getElementById("searchPage");
+function $(selector) {
+    return document.querySelector(selector);
+}
 
-const recentContainer = document.getElementById("recent");
-const allContainer = document.getElementById("all");
-const gamesContainer = document.getElementById("gamesGrid");
-
-const searchInput = document.getElementById("searchInput");
-const resultsContainer = document.getElementById("results");
-
-const shade = document.getElementById("shade");
-const settingsButton = document.getElementById("settingsBtn");
-const closeSettings = document.getElementById("closeSettings");
-
-const pageTitle = document.getElementById("pageTitle");
+function $$(selector) {
+    return Array.from(document.querySelectorAll(selector));
+}
 
 
-// ==========================================
+// ======================================================
+// GET GAME NAME / ICON
+// Works with your current [name, icon] format
+// ======================================================
+
+function gameName(game) {
+    return game[0];
+}
+
+function gameIcon(game) {
+    return game[1];
+}
+
+
+// ======================================================
+// CREATE GAME CARD
+// ======================================================
+
+function createCard(game) {
+
+    const name = gameName(game);
+    const icon = gameIcon(game);
+
+    return `
+        <div
+            class="card"
+            data-game="${escapeHTML(name)}"
+            tabindex="0"
+            role="button"
+            aria-label="Open ${escapeHTML(name)}"
+        >
+
+            <div class="thumb">
+                <div class="game-icon">
+                    ${icon}
+                </div>
+            </div>
+
+            <div class="name">
+                ${escapeHTML(name)}
+            </div>
+
+        </div>
+    `;
+}
+
+
+// ======================================================
+// ESCAPE HTML
+// ======================================================
+
+function escapeHTML(text) {
+
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+// ======================================================
+// LOAD HOME GAMES
+// ======================================================
+
+function loadHomeGames() {
+
+    const allHome = $("#allHome");
+    const recent = $("#recent");
+    const allGames = $("#allGames");
+
+    if (recent) {
+
+        recent.innerHTML = games
+            .slice(0, 6)
+            .map(createCard)
+            .join("");
+
+    }
+
+    if (allHome) {
+
+        allHome.innerHTML = games
+            .map(createCard)
+            .join("");
+
+    }
+
+    if (allGames) {
+
+        allGames.innerHTML = games
+            .map(createCard)
+            .join("");
+
+    }
+
+    setupCards();
+}
+
+
+// ======================================================
+// LOAD GAMES PAGE
+// ======================================================
+
+function loadGamesPage() {
+
+    const allGames = $("#allGames");
+
+    if (!allGames) return;
+
+    allGames.innerHTML = games
+        .map(createCard)
+        .join("");
+
+    setupCards();
+}
+
+
+// ======================================================
+// MAKE GAME CARDS CLICKABLE
+// ======================================================
+
+function setupCards() {
+
+    $$(".card").forEach(card => {
+
+        if (card.dataset.listener === "true") {
+            return;
+        }
+
+        card.dataset.listener = "true";
+
+        card.addEventListener("click", function () {
+
+            const name = card.dataset.game;
+
+            const game = games.find(
+                item => gameName(item) === name
+            );
+
+            if (!game) return;
+
+            openGame(game);
+
+        });
+
+
+        // Keyboard support
+
+        card.addEventListener("keydown", function (event) {
+
+            if (
+                event.key === "Enter" ||
+                event.key === " "
+            ) {
+
+                event.preventDefault();
+
+                const name = card.dataset.game;
+
+                const game = games.find(
+                    item => gameName(item) === name
+                );
+
+                if (game) {
+                    openGame(game);
+                }
+
+            }
+
+        });
+
+    });
+
+}
+
+
+// ======================================================
+// OPEN GAME
+// ======================================================
+
+function openGame(game) {
+
+    closeGame();
+
+    const name = gameName(game);
+    const icon = gameIcon(game);
+
+    const popup = document.createElement("div");
+
+    popup.id = "gamePopup";
+
+    popup.innerHTML = `
+
+        <div class="game-popup">
+
+            <div class="game-popup-header">
+
+                <div class="popup-title">
+
+                    <span class="popup-game-icon">
+                        ${icon}
+                    </span>
+
+                    <span>
+                        ${escapeHTML(name)}
+                    </span>
+
+                </div>
+
+
+                <button
+                    class="popup-close"
+                    id="closeGame"
+                    aria-label="Close game"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="game-popup-body">
+
+                <div class="game-placeholder">
+
+                    <div class="placeholder-icon">
+                        ${icon}
+                    </div>
+
+                    <h2>
+                        ${escapeHTML(name)}
+                    </h2>
+
+                    <p>
+                        This game is ready to be added to APPLEBOTTOM.
+                    </p>
+
+                    <div class="placeholder-status">
+                        GAME PAGE
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+    document.body.appendChild(popup);
+
+    document.body.style.overflow = "hidden";
+
+
+    const closeButton = $("#closeGame");
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closeGame
+        );
+
+    }
+
+
+    popup.addEventListener("click", function (event) {
+
+        if (event.target === popup) {
+            closeGame();
+        }
+
+    });
+
+}
+
+
+// ======================================================
+// CLOSE GAME
+// ======================================================
+
+function closeGame() {
+
+    const popup = $("#gamePopup");
+
+    if (popup) {
+        popup.remove();
+    }
+
+    document.body.style.overflow = "";
+
+}
+
+
+// ======================================================
+// ESC KEY
+// ======================================================
+
+document.addEventListener("keydown", function (event) {
+
+    if (event.key === "Escape") {
+
+        closeGame();
+        closeSettings();
+
+    }
+
+});
+
+
+// ======================================================
 // PAGE NAVIGATION
-// ==========================================
+// ======================================================
 
 function showPage(pageName) {
 
-    // Hide every page
+    const pages = $$(".page");
 
-    document.querySelectorAll(".page").forEach(function(page) {
-        page.classList.remove("active-page");
+    pages.forEach(page => {
+
+        page.classList.remove("active");
+
+        page.style.display = "";
+
     });
 
 
-    // Remove active state from buttons
+    let target = null;
 
-    document.querySelectorAll(".nav").forEach(function(button) {
-        button.classList.remove("active");
-    });
-
-
-    // Show requested page
 
     if (pageName === "home") {
 
-        homePage.classList.add("active-page");
-
-        pageTitle.innerHTML =
-            'Home <em>252</em>';
+        target =
+            $("#home") ||
+            $(".home");
 
     }
 
 
     if (pageName === "games") {
 
-        gamesPage.classList.add("active-page");
-
-        pageTitle.innerHTML =
-            'Games <em>252</em>';
+        target =
+            $("#games") ||
+            $(".games");
 
     }
 
 
     if (pageName === "search") {
 
-        searchPage.classList.add("active-page");
-
-        pageTitle.innerHTML =
-            'Search <em>252</em>';
-
-        setTimeout(function() {
-
-            if (searchInput) {
-                searchInput.focus();
-            }
-
-        }, 100);
+        target =
+            $("#searchPage") ||
+            $("#search") ||
+            $(".search-page");
 
     }
 
 
-    // Activate correct sidebar button
+    if (pageName === "settings") {
 
-    document.querySelectorAll(".nav").forEach(function(button) {
+        openSettings();
 
-        if (button.dataset.page === pageName) {
-            button.classList.add("active");
-        }
+        return;
 
-    });
+    }
 
 
-    // Scroll to top
+    if (target) {
+
+        target.classList.add("active");
+
+    }
+
+
+    updateNavigation(pageName);
 
     window.scrollTo({
         top: 0,
@@ -326,130 +443,402 @@ function showPage(pageName) {
 }
 
 
-// ==========================================
-// SIDEBAR BUTTONS
-// ==========================================
+// ======================================================
+// UPDATE NAVIGATION BUTTONS
+// ======================================================
 
-document.querySelectorAll(".nav").forEach(function(button) {
+function updateNavigation(pageName) {
 
-    button.addEventListener("click", function() {
+    $$("nav button").forEach(button => {
 
-        const page = button.dataset.page;
+        button.classList.remove("active");
 
-        showPage(page);
+        const buttonPage =
+            button.dataset.page;
 
-    });
-
-});
-
-
-// ==========================================
-// HERO BUTTONS
-// ==========================================
-
-const heroSearch = document.getElementById("heroSearch");
-
-if (heroSearch) {
-
-    heroSearch.addEventListener("click", function() {
-
-        showPage("search");
-
-    });
-
-}
+        const text =
+            button.textContent
+                .trim()
+                .toLowerCase();
 
 
-const browseButton = document.getElementById("browse");
+        if (
+            buttonPage === pageName ||
+            text.includes(pageName)
+        ) {
 
-if (browseButton) {
-
-    browseButton.addEventListener("click", function() {
-
-        showPage("games");
-
-    });
-
-}
-
-
-// ==========================================
-// SETTINGS
-// ==========================================
-
-if (settingsButton) {
-
-    settingsButton.addEventListener("click", function() {
-
-        shade.classList.add("open");
-
-    });
-
-}
-
-
-if (closeSettings) {
-
-    closeSettings.addEventListener("click", function() {
-
-        shade.classList.remove("open");
-
-    });
-
-}
-
-
-// Click outside settings drawer
-
-if (shade) {
-
-    shade.addEventListener("click", function(event) {
-
-        if (event.target === shade) {
-
-            shade.classList.remove("open");
+            button.classList.add("active");
 
         }
 
     });
 
+
+    const title = $("#title");
+
+    if (!title) return;
+
+
+    if (pageName === "home") {
+
+        title.innerHTML =
+            `Home <i>252</i>`;
+
+    }
+
+    else if (pageName === "games") {
+
+        title.innerHTML =
+            `Games <i>252</i>`;
+
+    }
+
+    else if (pageName === "search") {
+
+        title.innerHTML =
+            `Search <i>252</i>`;
+
+    }
+
 }
 
 
-// ESC closes settings
+// ======================================================
+// NAVIGATION BUTTONS
+// ======================================================
 
-document.addEventListener("keydown", function(event) {
+$$("nav button").forEach(button => {
 
-    if (event.key === "Escape") {
+    button.addEventListener("click", function () {
 
-        shade.classList.remove("open");
+        let pageName =
+            button.dataset.page;
 
-    }
+
+        if (!pageName) {
+
+            const text =
+                button.textContent
+                    .trim()
+                    .toLowerCase();
+
+
+            if (text.includes("home")) {
+                pageName = "home";
+            }
+
+            else if (text.includes("games")) {
+                pageName = "games";
+            }
+
+            else if (text.includes("search")) {
+                pageName = "search";
+            }
+
+            else if (text.includes("settings")) {
+                pageName = "settings";
+            }
+
+        }
+
+
+        if (pageName) {
+
+            showPage(pageName);
+
+        }
+
+    });
 
 });
 
 
-// ==========================================
-// ACCENT COLORS
-// ==========================================
+// ======================================================
+// BROWSE ALL GAMES
+// ======================================================
 
-document.querySelectorAll(".swatches button").forEach(function(button) {
+const browseButtons = [
+    "#browse",
+    "#browseAll",
+    ".browse-all"
+];
 
-    button.addEventListener("click", function() {
 
-        const color = button.dataset.c;
+browseButtons.forEach(selector => {
 
-        document.body.style.setProperty(
-            "--accent",
-            color
-        );
+    $$(selector).forEach(button => {
 
-        localStorage.setItem(
-            "applebottomAccent",
-            color
-        );
+        button.addEventListener("click", function () {
+
+            showPage("games");
+
+        });
 
     });
+
+});
+
+
+// ======================================================
+// HERO SEARCH
+// ======================================================
+
+const heroSearch = $("#heroSearch");
+
+if (heroSearch) {
+
+    heroSearch.addEventListener("click", function () {
+
+        showPage("search");
+
+        setTimeout(() => {
+
+            const input =
+                $("#searchInput");
+
+            if (input) {
+                input.focus();
+            }
+
+        }, 100);
+
+    });
+
+}
+
+
+// ======================================================
+// SEARCH SYSTEM
+// ======================================================
+
+const searchInput = $("#searchInput");
+
+const results =
+    $("#results");
+
+
+function searchGames(query) {
+
+    const text =
+        query
+            .trim()
+            .toLowerCase();
+
+
+    if (!results) return;
+
+
+    if (!text) {
+
+        results.innerHTML = `
+            <div class="search-message">
+                Search for a game above.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    const matches =
+        games.filter(game =>
+            gameName(game)
+                .toLowerCase()
+                .includes(text)
+        );
+
+
+    if (matches.length === 0) {
+
+        results.innerHTML = `
+            <div class="search-message">
+                No games found.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    results.innerHTML =
+        matches.map(game => `
+
+            <div
+                class="search-result"
+                data-game="${escapeHTML(gameName(game))}"
+                tabindex="0"
+            >
+
+                <span class="search-result-icon">
+                    ${gameIcon(game)}
+                </span>
+
+                <span>
+                    ${escapeHTML(gameName(game))}
+                </span>
+
+            </div>
+
+        `).join("");
+
+
+    $$(".search-result").forEach(result => {
+
+        result.addEventListener("click", function () {
+
+            const name =
+                result.dataset.game;
+
+            const game =
+                games.find(
+                    item => gameName(item) === name
+                );
+
+            if (game) {
+                openGame(game);
+            }
+
+        });
+
+    });
+
+}
+
+
+if (searchInput) {
+
+    searchInput.addEventListener(
+        "input",
+        function () {
+
+            searchGames(
+                searchInput.value
+            );
+
+        }
+    );
+
+}
+
+
+// ======================================================
+// SETTINGS PANEL
+// ======================================================
+
+function openSettings() {
+
+    const shade = $("#shade");
+
+    if (shade) {
+
+        shade.classList.add("open");
+
+        shade.style.display = "flex";
+
+    }
+
+}
+
+
+function closeSettings() {
+
+    const shade = $("#shade");
+
+    if (shade) {
+
+        shade.classList.remove("open");
+
+        shade.style.display = "";
+
+    }
+
+}
+
+
+const settingsButton = $("#settings");
+
+if (settingsButton) {
+
+    settingsButton.addEventListener(
+        "click",
+        openSettings
+    );
+
+}
+
+
+const closeSettingsButton = $("#close");
+
+if (closeSettingsButton) {
+
+    closeSettingsButton.addEventListener(
+        "click",
+        closeSettings
+    );
+
+}
+
+
+const shade = $("#shade");
+
+if (shade) {
+
+    shade.addEventListener(
+        "click",
+        function (event) {
+
+            if (event.target === shade) {
+                closeSettings();
+            }
+
+        }
+    );
+
+}
+
+
+// ======================================================
+// ACCENT COLOR SETTINGS
+// ======================================================
+
+function setAccent(color) {
+
+    if (!color) return;
+
+    document.documentElement
+        .style
+        .setProperty("--accent", color);
+
+
+    localStorage.setItem(
+        "applebottomAccent",
+        color
+    );
+
+}
+
+
+$$(".swatches button").forEach(button => {
+
+    button.addEventListener(
+        "click",
+        function () {
+
+            const color =
+                button.dataset.c ||
+                button.dataset.color;
+
+
+            if (color) {
+
+                setAccent(color);
+
+            }
+
+        }
+    );
 
 });
 
@@ -457,415 +846,171 @@ document.querySelectorAll(".swatches button").forEach(function(button) {
 // Load saved accent
 
 const savedAccent =
-    localStorage.getItem("applebottomAccent");
+    localStorage.getItem(
+        "applebottomAccent"
+    );
+
 
 if (savedAccent) {
 
-    document.body.style.setProperty(
-        "--accent",
-        savedAccent
+    setAccent(savedAccent);
+
+}
+
+
+// ======================================================
+// CARD SIZE SETTINGS
+// ======================================================
+
+function setCardSize(size) {
+
+    document.body.classList.remove(
+        "small",
+        "large"
+    );
+
+
+    if (size === "small") {
+
+        document.body.classList.add(
+            "small"
+        );
+
+    }
+
+
+    if (size === "large") {
+
+        document.body.classList.add(
+            "large"
+        );
+
+    }
+
+
+    localStorage.setItem(
+        "applebottomCardSize",
+        size
     );
 
 }
 
 
-// ==========================================
-// CARD SIZE
-// ==========================================
+$$(".sizes button").forEach(button => {
 
-document.querySelectorAll(".sizes button").forEach(function(button) {
+    button.addEventListener(
+        "click",
+        function () {
 
-    button.addEventListener("click", function() {
+            const size =
+                button.dataset.s ||
+                button.dataset.size;
 
-        document.body.classList.remove(
-            "small",
-            "large"
-        );
 
-        const size = button.dataset.s;
+            if (size) {
 
-        if (size === "small") {
+                setCardSize(size);
 
-            document.body.classList.add("small");
+            }
+
+
+            $$(".sizes button").forEach(
+                b => b.classList.remove("selected")
+            );
+
+
+            button.classList.add("selected");
 
         }
-
-        if (size === "large") {
-
-            document.body.classList.add("large");
-
-        }
-
-
-        document.querySelectorAll(".sizes button").forEach(function(b) {
-
-            b.classList.remove("selected");
-
-        });
-
-        button.classList.add("selected");
-
-    });
+    );
 
 });
 
 
-// ==========================================
-// GAME CARD CREATOR
-// ==========================================
+// Load saved size
 
-function createGameCard(game) {
-
-    const card =
-        document.createElement("div");
-
-    card.className = "card";
+const savedSize =
+    localStorage.getItem(
+        "applebottomCardSize"
+    );
 
 
-    card.innerHTML = `
+if (savedSize) {
 
-        <div class="thumb">
-
-            ${game.icon}
-
-        </div>
-
-        <div class="name">
-
-            ${game.name}
-
-        </div>
-
-    `;
-
-
-    card.addEventListener("click", function() {
-
-        openGame(game);
-
-    });
-
-
-    return card;
+    setCardSize(savedSize);
 
 }
 
 
-// ==========================================
-// DISPLAY GAMES
-// ==========================================
-
-function displayGames() {
-
-    recentContainer.innerHTML = "";
-
-    allContainer.innerHTML = "";
-
-    gamesContainer.innerHTML = "";
-
-
-    // First 6 = recently added
-
-    games.slice(0, 6).forEach(function(game) {
-
-        recentContainer.appendChild(
-            createGameCard(game)
-        );
-
-    });
-
-
-    // Everything
-
-    games.forEach(function(game) {
-
-        allContainer.appendChild(
-            createGameCard(game)
-        );
-
-    });
-
-
-    // Games page
-
-    games.forEach(function(game) {
-
-        gamesContainer.appendChild(
-            createGameCard(game)
-        );
-
-    });
-
-}
-
-
-displayGames();
-
-
-// ==========================================
-// GAME POPUP
-// ==========================================
-
-function openGame(game) {
-
-    // Remove old popup
-
-    const oldPopup =
-        document.getElementById("gamePopup");
-
-    if (oldPopup) {
-        oldPopup.remove();
-    }
-
-
-    const popup =
-        document.createElement("div");
-
-    popup.id = "gamePopup";
-
-
-    popup.innerHTML = `
-
-        <div class="game-popup">
-
-            <div class="game-popup-header">
-
-                <div>
-
-                    <span class="popup-icon">
-                        ${game.icon}
-                    </span>
-
-                    <strong>
-                        ${game.name}
-                    </strong>
-
-                </div>
-
-                <button id="closeGame">
-                    ×
-                </button>
-
-            </div>
-
-
-            <div class="game-popup-body">
-
-                <div class="big-game-icon">
-                    ${game.icon}
-                </div>
-
-                <h2>
-                    ${game.name}
-                </h2>
-
-                <p>
-                    ${game.description}
-                </p>
-
-                ${
-                    game.url !== "#"
-                    ?
-                    `<button id="playGame" class="play-button">
-                        PLAY GAME →
-                    </button>`
-                    :
-                    `<div class="coming-soon">
-                        GAME COMING SOON
-                    </div>`
-                }
-
-            </div>
-
-        </div>
-
-    `;
-
-
-    document.body.appendChild(popup);
-
-
-    // Close button
-
-    document
-        .getElementById("closeGame")
-        .addEventListener("click", function() {
-
-            popup.remove();
-
-        });
-
-
-    // Play button
-
-    const playButton =
-        document.getElementById("playGame");
-
-    if (playButton) {
-
-        playButton.addEventListener("click", function() {
-
-            window.open(
-                game.url,
-                "_blank"
-            );
-
-        });
-
-    }
-
-
-    // Click dark background
-
-    popup.addEventListener("click", function(event) {
-
-        if (event.target === popup) {
-
-            popup.remove();
-
-        }
-
-    });
-
-}
-
-
-// ==========================================
-// SEARCH
-// ==========================================
-
-if (searchInput) {
-
-    searchInput.addEventListener("input", function() {
-
-        const search =
-            searchInput.value
-                .trim()
-                .toLowerCase();
-
-
-        resultsContainer.innerHTML = "";
-
-
-        // Nothing typed
-
-        if (search === "") {
-
-            resultsContainer.innerHTML = `
-
-                <div class="result">
-
-                    Type a game name to search.
-
-                </div>
-
-            `;
-
-            return;
-
-        }
-
-
-        // Find matching games
-
-        const matches =
-            games.filter(function(game) {
-
-                return game.name
-                    .toLowerCase()
-                    .includes(search);
-
-            });
-
-
-        // Nothing found
-
-        if (matches.length === 0) {
-
-            resultsContainer.innerHTML = `
-
-                <div class="result">
-
-                    No games found.
-
-                </div>
-
-            `;
-
-            return;
-
-        }
-
-
-        // Display results
-
-        matches.forEach(function(game) {
-
-            const result =
-                document.createElement("div");
-
-            result.className = "result";
-
-            result.style.cursor = "pointer";
-
-
-            result.innerHTML = `
-
-                <b>
-                    ${game.icon}
-                </b>
-
-                ${game.name}
-
-            `;
-
-
-            result.addEventListener("click", function() {
-
-                openGame(game);
-
-            });
-
-
-            resultsContainer.appendChild(result);
-
-        });
-
-    });
-
-}
-
-
-// ==========================================
-// SETTINGS TAB NAME
-// ==========================================
-
-const tabName =
-    document.getElementById("tabName");
+// ======================================================
+// TAB NAME
+// ======================================================
+
+const tabName = $("#tabName");
 
 
 if (tabName) {
 
-    tabName.addEventListener("input", function() {
+    const savedTabName =
+        localStorage.getItem(
+            "applebottomTabName"
+        );
+
+
+    if (savedTabName) {
+
+        tabName.value =
+            savedTabName;
 
         document.title =
-            tabName.value || "APPLEBOTTOM UBG";
+            savedTabName;
 
-    });
+    }
+
+
+    tabName.addEventListener(
+        "input",
+        function () {
+
+            const value =
+                tabName.value.trim();
+
+
+            const finalName =
+                value ||
+                "APPLEBOTTOM UBG";
+
+
+            document.title =
+                finalName;
+
+
+            localStorage.setItem(
+                "applebottomTabName",
+                finalName
+            );
+
+        }
+    );
 
 }
 
 
-// ==========================================
-// DATE + TIME
-// ==========================================
+// ======================================================
+// CLOCK
+// ======================================================
 
 function updateClock() {
+
+    const dateElement = $("#date");
+
+    if (!dateElement) return;
+
 
     const now = new Date();
 
 
-    const dateText =
+    const date =
         now.toLocaleDateString(
             undefined,
             {
@@ -877,7 +1022,7 @@ function updateClock() {
         );
 
 
-    const timeText =
+    const time =
         now.toLocaleTimeString(
             undefined,
             {
@@ -887,20 +1032,8 @@ function updateClock() {
         );
 
 
-    if (document.getElementById("date")) {
-
-        document.getElementById("date").textContent =
-            dateText + " • " + timeText;
-
-    }
-
-
-    if (document.getElementById("clock")) {
-
-        document.getElementById("clock").textContent =
-            dateText + " — " + timeText;
-
-    }
+    dateElement.textContent =
+        `${date} • ${time}`;
 
 }
 
@@ -914,8 +1047,206 @@ setInterval(
 );
 
 
-// ==========================================
-// START ON HOME
-// ==========================================
+// ======================================================
+// TOP-RIGHT BUTTONS
+// ======================================================
 
-showPage("home");
+// Makes icon buttons work even if they don't have IDs.
+
+$$("header button, .top-buttons button, .header-buttons button")
+.forEach(button => {
+
+    if (
+        button.id === "settings" ||
+        button.dataset.page
+    ) {
+        return;
+    }
+
+
+    button.addEventListener(
+        "click",
+        function () {
+
+            const label =
+                (
+                    button.getAttribute("aria-label") ||
+                    button.title ||
+                    button.textContent
+                )
+                .toLowerCase();
+
+
+            // Settings
+
+            if (label.includes("setting")) {
+
+                openSettings();
+
+                return;
+
+            }
+
+
+            // Home
+
+            if (label.includes("home")) {
+
+                showPage("home");
+
+                return;
+
+            }
+
+
+            // Games
+
+            if (label.includes("game")) {
+
+                showPage("games");
+
+                return;
+
+            }
+
+
+            // Search
+
+            if (label.includes("search")) {
+
+                showPage("search");
+
+                return;
+
+            }
+
+        }
+    );
+
+});
+
+
+// ======================================================
+// MOBILE SIDEBAR
+// ======================================================
+
+const menuButton =
+    $("#menu") ||
+    $("#menuButton") ||
+    $(".menu-button");
+
+
+const sidebar =
+    $("aside") ||
+    $(".sidebar");
+
+
+if (menuButton && sidebar) {
+
+    menuButton.addEventListener(
+        "click",
+        function () {
+
+            sidebar.classList.toggle("open");
+
+        }
+    );
+
+}
+
+
+// ======================================================
+// CLOSE MOBILE SIDEBAR AFTER NAVIGATION
+// ======================================================
+
+$$("nav button").forEach(button => {
+
+    button.addEventListener(
+        "click",
+        function () {
+
+            if (sidebar) {
+
+                sidebar.classList.remove(
+                    "open"
+                );
+
+            }
+
+        }
+    );
+
+});
+
+
+// ======================================================
+// FIX COMMON BUTTONS
+// ======================================================
+
+// Any element with data-page automatically works.
+
+$$("[data-page]").forEach(element => {
+
+    element.addEventListener(
+        "click",
+        function () {
+
+            const pageName =
+                element.dataset.page;
+
+            if (pageName) {
+
+                showPage(pageName);
+
+            }
+
+        }
+    );
+
+});
+
+
+// ======================================================
+// INITIALIZE EVERYTHING
+// ======================================================
+
+function initializeApp() {
+
+    loadHomeGames();
+
+    loadGamesPage();
+
+    // Start on Home
+
+    showPage("home");
+
+
+    // Search placeholder
+
+    if (results && !results.innerHTML.trim()) {
+
+        results.innerHTML = `
+            <div class="search-message">
+                Search for a game above.
+            </div>
+        `;
+
+    }
+
+}
+
+
+// Wait until the HTML is loaded
+
+if (document.readyState === "loading") {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeApp
+    );
+
+} else {
+
+    initializeApp();
+
+}
