@@ -1,19 +1,19 @@
-const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => [...document.querySelectorAll(selector)];
 
 /* =========================================================
-   GAME LIST
+   APPLEBOTTOM GAME LIST
    ========================================================= */
 
 const defaultGames = [
     {
-        id: "fnaf",
-        name: "Five Nights at Freddy's",
-        icon: "🎮",
-        image: "images/fnaf.png",
-        path: "games/fnaf/index.html",
-        added: Date.now(),
-        desc: "Survive the night."
+        id: "granny",
+        name: "Granny",
+        description: "Escape the house before Granny finds you.",
+        image: "images/granny.png",
+        icon: "👵",
+        file: "games/granny/index.html",
+        added: Date.now()
     }
 ];
 
@@ -21,89 +21,102 @@ const defaultGames = [
    DEFAULT SETTINGS
    ========================================================= */
 
-const defaults = {
+const defaultSettings = {
     tabName: "APPLEBOTTOM UBG",
     siteName: "APPLEBOTTOM",
     homeTitle: "APPLEBOTTOM",
-    homeSub: "Your calm little corner of the internet.",
+    homeSubtitle: "Your calm little corner of the internet.",
     gamesTitle: "All games",
     recentTitle: "Recently added",
     accent: "#ff334f",
     cardSize: "medium",
-    dark: true,
-    bg: ""
+    darkMode: true,
+    background: ""
 };
 
 /* =========================================================
-   LOAD SAVED DATA
+   LOAD SETTINGS
    ========================================================= */
 
-let savedConfig;
+let settings = {};
 
 try {
-    savedConfig = JSON.parse(
-        localStorage.getItem("applebottom_cfg") || "{}"
+    settings = JSON.parse(
+        localStorage.getItem("applebottom_settings") || "{}"
     );
-} catch {
-    savedConfig = {};
+} catch (error) {
+    settings = {};
 }
 
-let cfg = {
-    ...defaults,
-    ...savedConfig
+settings = {
+    ...defaultSettings,
+    ...settings
 };
 
-let savedGames;
+/* =========================================================
+   LOAD GAMES
+   ========================================================= */
+
+let games = [];
 
 try {
-    savedGames = JSON.parse(
+    const savedGames = JSON.parse(
         localStorage.getItem("applebottom_games") || "null"
     );
-} catch {
-    savedGames = null;
+
+    if (Array.isArray(savedGames)) {
+        games = savedGames;
+    }
+} catch (error) {
+    games = [];
 }
 
 /*
-   IMPORTANT:
-
-   If the browser already has the old demo games saved in
-   localStorage, remove them automatically.
-
-   This makes sure Apple Dodge, Neon Click, Memory Grid,
-   and 2048 Mini don't come back.
+    Remove the old demo games from the previous version.
 */
 
-const oldDemoIds = [
+const demoGameIds = [
     "apple-dodge",
     "neon-click",
     "memory",
-    "2048-original"
+    "memory-grid",
+    "2048",
+    "2048-mini",
+    "snake",
+    "flappy-bird"
 ];
 
-let games = Array.isArray(savedGames)
-    ? savedGames.filter(game => !oldDemoIds.includes(game.id))
-    : [...defaultGames];
+games = games.filter(
+    (game) => !demoGameIds.includes(game.id)
+);
 
 /*
-   If FNaF isn't already saved, add it.
+    Make sure Granny exists.
 */
 
-if (!games.some(game => game.id === "fnaf")) {
+const grannyAlreadyExists = games.some(
+    (game) => game.id === "granny"
+);
+
+if (!grannyAlreadyExists) {
     games.unshift(defaultGames[0]);
 }
 
-let editMode = false;
-let currentGame = null;
-let localGameUrl = null;
-
 /* =========================================================
-   SAVE
+   STATE
    ========================================================= */
 
-function save() {
+let currentGame = null;
+let editMode = false;
+
+/* =========================================================
+   SAVE EVERYTHING
+   ========================================================= */
+
+function saveData() {
     localStorage.setItem(
-        "applebottom_cfg",
-        JSON.stringify(cfg)
+        "applebottom_settings",
+        JSON.stringify(settings)
     );
 
     localStorage.setItem(
@@ -113,21 +126,44 @@ function save() {
 }
 
 /* =========================================================
+   ESCAPE HTML
+   ========================================================= */
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(
+        /[&<>"']/g,
+        (character) => {
+            const characters = {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            };
+
+            return characters[character];
+        }
+    );
+}
+
+/* =========================================================
    TOAST
    ========================================================= */
 
-function toast(text) {
-    const element = $("#toast");
+function showToast(message) {
+    let toast = $("#toast");
 
-    if (!element) return;
+    if (!toast) {
+        return;
+    }
 
-    element.textContent = text;
-    element.classList.add("show");
+    toast.textContent = message;
+    toast.classList.add("show");
 
-    clearTimeout(window.toastTimer);
+    clearTimeout(window.appleToastTimer);
 
-    window.toastTimer = setTimeout(() => {
-        element.classList.remove("show");
+    window.appleToastTimer = setTimeout(() => {
+        toast.classList.remove("show");
     }, 1800);
 }
 
@@ -135,19 +171,19 @@ function toast(text) {
    APPLY SETTINGS
    ========================================================= */
 
-function apply() {
+function applySettings() {
 
     document.documentElement.style.setProperty(
         "--accent",
-        cfg.accent
+        settings.accent
     );
 
     document.title =
-        cfg.tabName || "APPLEBOTTOM UBG";
+        settings.tabName || "APPLEBOTTOM UBG";
 
     document.body.classList.toggle(
         "light",
-        !cfg.dark
+        !settings.darkMode
     );
 
     document.body.classList.remove(
@@ -155,60 +191,72 @@ function apply() {
         "card-large"
     );
 
-    if (cfg.cardSize === "small") {
+    if (settings.cardSize === "small") {
         document.body.classList.add("card-small");
     }
 
-    if (cfg.cardSize === "large") {
+    if (settings.cardSize === "large") {
         document.body.classList.add("card-large");
     }
 
-    if (cfg.bg) {
+    /*
+        Background
+    */
 
-        document.body.classList.add("has-bg");
+    if (settings.background) {
 
         document.documentElement.style.setProperty(
-            "--site-bg",
-            `url("${cfg.bg}")`
+            "--site-background",
+            `url("${settings.background}")`
+        );
+
+        document.body.classList.add(
+            "has-background"
         );
 
     } else {
 
-        document.body.classList.remove("has-bg");
+        document.body.classList.remove(
+            "has-background"
+        );
 
         document.documentElement.style.removeProperty(
-            "--site-bg"
+            "--site-background"
         );
     }
 
-    /* BRAND */
+    /*
+        Branding
+    */
 
     if ($("#brandName")) {
         $("#brandName").textContent =
-            cfg.siteName;
+            settings.siteName;
     }
 
     if ($("#heroName")) {
         $("#heroName").textContent =
-            cfg.homeTitle;
+            settings.homeTitle;
     }
 
     if ($("#heroSub")) {
         $("#heroSub").textContent =
-            cfg.homeSub;
+            settings.homeSubtitle;
     }
 
     if ($("#gamesTitle")) {
         $("#gamesTitle").textContent =
-            cfg.gamesTitle;
+            settings.gamesTitle;
     }
 
     if ($("#recentTitle")) {
         $("#recentTitle").textContent =
-            cfg.recentTitle;
+            settings.recentTitle;
     }
 
-    /* GAME COUNT */
+    /*
+        Game count
+    */
 
     if ($("#countPill")) {
         $("#countPill").textContent =
@@ -220,138 +268,108 @@ function apply() {
             games.length;
     }
 
-    /* SETTINGS INPUTS */
+    /*
+        Settings inputs
+    */
 
-    if ($("#setTabName")) {
-        $("#setTabName").value =
-            cfg.tabName;
-    }
+    const inputs = {
+        "#setTabName": settings.tabName,
+        "#setSiteName": settings.siteName,
+        "#setHomeTitle": settings.homeTitle,
+        "#setHomeSub": settings.homeSubtitle,
+        "#setGamesTitle": settings.gamesTitle,
+        "#setRecentTitle": settings.recentTitle,
+        "#setAccent": settings.accent,
+        "#setCardSize": settings.cardSize
+    };
 
-    if ($("#setSiteName")) {
-        $("#setSiteName").value =
-            cfg.siteName;
-    }
+    Object.entries(inputs).forEach(
+        ([selector, value]) => {
 
-    if ($("#setHomeTitle")) {
-        $("#setHomeTitle").value =
-            cfg.homeTitle;
-    }
+            const input = $(selector);
 
-    if ($("#setHomeSub")) {
-        $("#setHomeSub").value =
-            cfg.homeSub;
-    }
-
-    if ($("#setGamesTitle")) {
-        $("#setGamesTitle").value =
-            cfg.gamesTitle;
-    }
-
-    if ($("#setRecentTitle")) {
-        $("#setRecentTitle").value =
-            cfg.recentTitle;
-    }
-
-    if ($("#setAccent")) {
-        $("#setAccent").value =
-            cfg.accent;
-    }
-
-    if ($("#setCardSize")) {
-        $("#setCardSize").value =
-            cfg.cardSize;
-    }
+            if (input) {
+                input.value = value;
+            }
+        }
+    );
 
     if ($("#darkToggle")) {
         $("#darkToggle").classList.toggle(
             "on",
-            cfg.dark
+            settings.darkMode
         );
     }
 }
 
 /* =========================================================
-   ESCAPE HTML
+   CREATE GAME CARD
    ========================================================= */
 
-function escapeHtml(value) {
+function createGameCard(game) {
 
-    return String(value).replace(
-        /[&<>"']/g,
-        character => ({
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#39;"
-        })[character]
-    );
-}
-
-/* =========================================================
-   GAME CARD
-   ========================================================= */
-
-function card(game) {
-
-    const element =
+    const card =
         document.createElement("article");
 
-    element.className = "game-card";
+    card.className = "game-card";
 
-    const thumbnail = game.image
-        ? `
-            <img
-                src="${game.image}"
-                alt="${escapeHtml(game.name)}"
-                loading="lazy"
-                onerror="this.style.display='none'; this.parentElement.classList.add('image-error')"
-            >
-        `
-        : "";
+    card.dataset.gameId = game.id;
 
-    const fallbackIcon =
-        game.icon || "🎮";
+    const image =
+        game.image
+            ? `
+                <img
+                    src="${game.image}"
+                    alt="${escapeHTML(game.name)}"
+                    loading="lazy"
+                    onerror="
+                        this.style.display='none';
+                        this.parentElement.classList.add('image-error');
+                    "
+                >
+            `
+            : "";
 
-    element.innerHTML = `
+    card.innerHTML = `
         <button
             class="card-edit"
-            title="Edit game"
             type="button"
+            title="Edit game"
         >
             ✎
         </button>
 
         <div class="thumb">
-
-            ${thumbnail}
+            ${image}
 
             <span class="thumb-fallback">
-                ${fallbackIcon}
+                ${escapeHTML(game.icon || "🎮")}
             </span>
-
         </div>
 
         <div class="game-info">
 
             <div class="game-name">
-                ${escapeHtml(game.name)}
+                ${escapeHTML(game.name)}
             </div>
 
             <div class="game-desc">
-                ${escapeHtml(
-                    game.desc || "Play now"
+                ${escapeHTML(
+                    game.description ||
+                    "Play now"
                 )}
             </div>
 
         </div>
     `;
 
-    /* OPEN GAME */
+    /*
+        Clicking the card opens the game.
+    */
 
-    element.addEventListener(
+    card.addEventListener(
         "click",
-        event => {
+        (event) => {
 
             if (
                 event.target.closest(".card-edit")
@@ -363,80 +381,86 @@ function card(game) {
         }
     );
 
-    /* EDIT */
+    /*
+        Edit button.
+    */
 
     const editButton =
-        element.querySelector(".card-edit");
+        card.querySelector(".card-edit");
 
     if (editButton) {
 
         editButton.addEventListener(
             "click",
-            event => {
+            (event) => {
 
                 event.stopPropagation();
 
-                openEditor(game);
+                openGameEditor(game);
             }
         );
     }
 
-    return element;
+    return card;
 }
 
 /* =========================================================
-   RENDER GAMES
+   RENDER RECENT GAMES
    ========================================================= */
 
-function render(list = games) {
+function renderRecentlyAdded() {
 
-    const recentGrid =
+    const container =
         $("#recentGrid");
 
-    if (recentGrid) {
+    if (!container) {
+        return;
+    }
 
-        recentGrid.innerHTML = "";
+    container.innerHTML = "";
 
-        games
-            .slice()
+    const recentGames =
+        [...games]
             .sort(
                 (a, b) =>
                     (b.added || 0) -
                     (a.added || 0)
             )
-            .slice(0, 6)
-            .forEach(game => {
+            .slice(0, 6);
 
-                recentGrid.appendChild(
-                    card(game)
-                );
-            });
-    }
+    recentGames.forEach(
+        (game) => {
 
-    const gamesGrid =
+            container.appendChild(
+                createGameCard(game)
+            );
+        }
+    );
+}
+
+/* =========================================================
+   RENDER ALL GAMES
+   ========================================================= */
+
+function renderGames(list = games) {
+
+    const container =
         $("#gamesGrid");
 
-    if (gamesGrid) {
+    if (!container) {
+        return;
+    }
 
-        gamesGrid.innerHTML = "";
+    container.innerHTML = "";
 
-        list.forEach(game => {
+    list.forEach(
+        (game) => {
 
-            gamesGrid.appendChild(
-                card(game)
+            container.appendChild(
+                createGameCard(game)
             );
-        });
-    }
-
-    if ($("#countPill")) {
-        $("#countPill").textContent =
-            games.length;
-    }
-
-    if ($("#gameCountSide")) {
-        $("#gameCountSide").textContent =
-            games.length;
-    }
+        }
+    );
 
     const empty =
         $("#gamesEmpty");
@@ -451,47 +475,105 @@ function render(list = games) {
 }
 
 /* =========================================================
+   RENDER EVERYTHING
+   ========================================================= */
+
+function renderAll() {
+
+    renderRecentlyAdded();
+
+    renderGames(games);
+
+    updateGameCount();
+}
+
+/* =========================================================
+   GAME COUNT
+   ========================================================= */
+
+function updateGameCount() {
+
+    if ($("#countPill")) {
+        $("#countPill").textContent =
+            games.length;
+    }
+
+    if ($("#gameCountSide")) {
+        $("#gameCountSide").textContent =
+            games.length;
+    }
+}
+
+/* =========================================================
    SEARCH
+   ========================================================= */
+
+function searchGames(query) {
+
+    const search =
+        query
+            .trim()
+            .toLowerCase();
+
+    if (!search) {
+        return games;
+    }
+
+    return games.filter(
+        (game) => {
+
+            const name =
+                String(game.name || "")
+                    .toLowerCase();
+
+            const description =
+                String(
+                    game.description || ""
+                ).toLowerCase();
+
+            return (
+                name.includes(search) ||
+                description.includes(search)
+            );
+        }
+    );
+}
+
+/* =========================================================
+   SEARCH PAGE
    ========================================================= */
 
 function renderSearch(query) {
 
-    const term =
-        query.trim().toLowerCase();
-
     const results =
-        term
-            ? games.filter(game =>
-                game.name
-                    .toLowerCase()
-                    .includes(term)
-                ||
-                String(game.desc || "")
-                    .toLowerCase()
-                    .includes(term)
-            )
-            : games;
+        searchGames(query);
+
+    const container =
+        $("#searchGrid");
+
+    if (!container) {
+        return;
+    }
+
+    container.innerHTML = "";
+
+    results.forEach(
+        (game) => {
+
+            container.appendChild(
+                createGameCard(game)
+            );
+        }
+    );
 
     if ($("#searchMeta")) {
 
         $("#searchMeta").textContent =
-            `${results.length} game${
+            `${results.length} ${
                 results.length === 1
-                    ? ""
-                    : "s"
+                    ? "game"
+                    : "games"
             } found`;
-    }
-
-    if ($("#searchGrid")) {
-
-        $("#searchGrid").innerHTML = "";
-
-        results.forEach(game => {
-
-            $("#searchGrid").appendChild(
-                card(game)
-            );
-        });
     }
 }
 
@@ -499,15 +581,19 @@ function renderSearch(query) {
    NAVIGATION
    ========================================================= */
 
-function showView(name) {
+function showView(viewName) {
 
-    $$(".view").forEach(view => {
+    $$(".view").forEach(
+        (view) => {
 
-        view.classList.add("hidden");
-    });
+            view.classList.add(
+                "hidden"
+            );
+        }
+    );
 
     const target =
-        $(`#${name}View`);
+        $(`#${viewName}View`);
 
     if (target) {
 
@@ -516,21 +602,29 @@ function showView(name) {
         );
     }
 
-    $$(".nav").forEach(button => {
+    $$(".nav").forEach(
+        (button) => {
 
-        button.classList.toggle(
-            "active",
-            button.dataset.nav === name
-        );
-    });
+            button.classList.toggle(
+                "active",
+                button.dataset.nav ===
+                viewName
+            );
+        }
+    );
 
     if ($("#pageTitle")) {
 
+        const titles = {
+            home: "Home",
+            games: "Games",
+            search: "Search",
+            settings: "Settings"
+        };
+
         $("#pageTitle").textContent =
-            name === "home"
-                ? "Home"
-                : name.charAt(0).toUpperCase()
-                    + name.slice(1);
+            titles[viewName] ||
+            viewName;
     }
 
     window.scrollTo({
@@ -539,27 +633,35 @@ function showView(name) {
     });
 
     if (
-        name === "search" &&
+        viewName === "search" &&
         $("#searchPageInput")
     ) {
 
         setTimeout(() => {
-
             $("#searchPageInput").focus();
-
-        }, 50);
+        }, 100);
     }
 }
 
 /* =========================================================
-   OPEN GAME
+   OPEN GRANNY / OTHER GAME
    ========================================================= */
 
 function openGame(game) {
 
-    if (!game) return;
+    if (!game) {
+        return;
+    }
 
     currentGame = game;
+
+    /*
+        THIS IS THE IMPORTANT PART.
+
+        Granny loads from:
+
+        games/granny/index.html
+    */
 
     if ($("#playerTitle")) {
 
@@ -567,17 +669,25 @@ function openGame(game) {
             game.name;
     }
 
-    if ($("#gameFrame")) {
+    const frame =
+        $("#gameFrame");
 
-        $("#gameFrame").src =
-            game.path || "about:blank";
+    if (frame) {
+
+        frame.src =
+            game.file ||
+            game.path ||
+            "about:blank";
     }
 
-    if ($("#gameModal")) {
+    const modal =
+        $("#gameModal");
 
-        $("#gameModal")
-            .classList
-            .remove("hidden");
+    if (modal) {
+
+        modal.classList.remove(
+            "hidden"
+        );
     }
 
     document.body.style.overflow =
@@ -590,17 +700,23 @@ function openGame(game) {
 
 function closeGame() {
 
-    if ($("#gameModal")) {
+    const frame =
+        $("#gameFrame");
 
-        $("#gameModal")
-            .classList
-            .add("hidden");
+    if (frame) {
+
+        frame.src =
+            "about:blank";
     }
 
-    if ($("#gameFrame")) {
+    const modal =
+        $("#gameModal");
 
-        $("#gameFrame").src =
-            "about:blank";
+    if (modal) {
+
+        modal.classList.add(
+            "hidden"
+        );
     }
 
     document.body.style.overflow = "";
@@ -609,10 +725,93 @@ function closeGame() {
 }
 
 /* =========================================================
+   RELOAD GAME
+   ========================================================= */
+
+function reloadGame() {
+
+    const frame =
+        $("#gameFrame");
+
+    if (!frame) {
+        return;
+    }
+
+    /*
+        Reload the current game without
+        changing the game path.
+    */
+
+    const currentSrc =
+        frame.src;
+
+    frame.src =
+        "about:blank";
+
+    setTimeout(() => {
+
+        frame.src =
+            currentSrc;
+
+    }, 30);
+}
+
+/* =========================================================
+   FULLSCREEN
+   ========================================================= */
+
+function fullscreenGame() {
+
+    const frame =
+        $("#gameFrame");
+
+    if (!frame) {
+        return;
+    }
+
+    if (frame.requestFullscreen) {
+
+        frame.requestFullscreen();
+
+    } else if (
+        frame.webkitRequestFullscreen
+    ) {
+
+        frame.webkitRequestFullscreen();
+    }
+}
+
+/* =========================================================
+   RANDOM GAME
+   ========================================================= */
+
+function randomGame() {
+
+    if (!games.length) {
+
+        showToast(
+            "No games available"
+        );
+
+        return;
+    }
+
+    const game =
+        games[
+            Math.floor(
+                Math.random() *
+                games.length
+            )
+        ];
+
+    openGame(game);
+}
+
+/* =========================================================
    GAME EDITOR
    ========================================================= */
 
-function openEditor(game = null) {
+function openGameEditor(game = null) {
 
     currentGame = game;
 
@@ -621,7 +820,7 @@ function openEditor(game = null) {
         $("#editorTitle").textContent =
             game
                 ? "Edit game"
-                : "Add game";
+                : "Add a game";
     }
 
     if ($("#gameNameInput")) {
@@ -639,7 +838,9 @@ function openEditor(game = null) {
     if ($("#gamePathInput")) {
 
         $("#gamePathInput").value =
-            game?.path || "";
+            game?.file ||
+            game?.path ||
+            "";
     }
 
     if ($("#deleteGameBtn")) {
@@ -658,7 +859,11 @@ function openEditor(game = null) {
     }
 }
 
-function closeEditor() {
+/* =========================================================
+   CLOSE EDITOR
+   ========================================================= */
+
+function closeGameEditor() {
 
     if ($("#gameEditor")) {
 
@@ -666,20 +871,22 @@ function closeEditor() {
             .classList
             .add("hidden");
     }
+
+    currentGame = null;
 }
 
 /* =========================================================
-   SAVE GAME FROM EDITOR
+   SAVE GAME
    ========================================================= */
 
-function saveEditor() {
+function saveGame() {
 
     const name =
         $("#gameNameInput")
             ?.value
             .trim();
 
-    const path =
+    const file =
         $("#gamePathInput")
             ?.value
             .trim();
@@ -687,12 +894,22 @@ function saveEditor() {
     const icon =
         $("#gameIconInput")
             ?.value
-            .trim() || "🎮";
+            .trim() ||
+        "🎮";
 
     if (!name) {
 
-        toast(
+        showToast(
             "Enter a game name"
+        );
+
+        return;
+    }
+
+    if (!file) {
+
+        showToast(
+            "Enter the game file path"
         );
 
         return;
@@ -700,111 +917,112 @@ function saveEditor() {
 
     if (currentGame) {
 
-        Object.assign(
-            currentGame,
-            {
-                name,
-                path:
-                    path ||
-                    currentGame.path,
-                icon,
-                desc:
-                    currentGame.desc ||
-                    "Play now"
-            }
-        );
+        currentGame.name =
+            name;
 
-        toast(
+        currentGame.icon =
+            icon;
+
+        currentGame.file =
+            file;
+
+        currentGame.description =
+            currentGame.description ||
+            "Play now";
+
+        showToast(
             "Game updated"
         );
 
     } else {
 
         games.unshift({
+
             id:
-                crypto.randomUUID
-                ? crypto.randomUUID()
-                : "game-" +
-                  Date.now(),
-
-            name,
-
-            icon,
-
-            path:
-                path ||
-                "about:blank",
-
-            added:
+                "game-" +
                 Date.now(),
 
-            desc:
-                "Play now"
+            name:
+                name,
+
+            icon:
+                icon,
+
+            file:
+                file,
+
+            image:
+                "",
+
+            description:
+                "Play now",
+
+            added:
+                Date.now()
         });
 
-        toast(
+        showToast(
             "Game added"
         );
     }
 
-    save();
-    apply();
-    render();
+    saveData();
 
-    closeEditor();
+    applySettings();
+
+    renderAll();
+
+    closeGameEditor();
 }
 
 /* =========================================================
    DELETE GAME
    ========================================================= */
 
-if ($("#deleteGameBtn")) {
+function deleteCurrentGame() {
 
-    $("#deleteGameBtn").onclick =
-        () => {
+    if (!currentGame) {
+        return;
+    }
 
-            if (!currentGame) {
-                return;
-            }
+    games =
+        games.filter(
+            (game) =>
+                game.id !==
+                currentGame.id
+        );
 
-            games =
-                games.filter(
-                    game =>
-                        game.id !==
-                        currentGame.id
-                );
+    saveData();
 
-            save();
-            apply();
-            render();
-            closeEditor();
+    renderAll();
 
-            toast(
-                "Game deleted"
-            );
-        };
+    closeGameEditor();
+
+    showToast(
+        "Game deleted"
+    );
 }
 
 /* =========================================================
-   NAVIGATION BUTTONS
+   NAV BUTTONS
    ========================================================= */
 
-function bindNav() {
+function setupNavigation() {
 
-    $$(".nav").forEach(button => {
+    $$(".nav").forEach(
+        (button) => {
 
-        button.addEventListener(
-            "click",
-            () => {
+            button.addEventListener(
+                "click",
+                () => {
 
-                showView(
-                    button.dataset.nav
-                );
-            }
-        );
-    });
-
-    /* TOP SEARCH */
+                    showView(
+                        button.dataset.nav
+                    );
+                }
+            );
+        }
+    );
 
     if ($("#topSearch")) {
 
@@ -812,15 +1030,37 @@ function bindNav() {
             () => showView("search");
     }
 
-    /* SETTINGS */
-
     if ($("#topSettings")) {
 
         $("#topSettings").onclick =
             () => showView("settings");
     }
 
-    /* BROWSE */
+    if ($("#topRandom")) {
+
+        $("#topRandom").onclick =
+            randomGame;
+    }
+
+    if ($("#topTheme")) {
+
+        $("#topTheme").onclick =
+            () => {
+
+                settings.darkMode =
+                    !settings.darkMode;
+
+                saveData();
+
+                applySettings();
+
+                showToast(
+                    settings.darkMode
+                        ? "Dark mode"
+                        : "Light mode"
+                );
+            };
+    }
 
     if ($("#browseBtn")) {
 
@@ -833,160 +1073,73 @@ function bindNav() {
         $("#recentAll").onclick =
             () => showView("games");
     }
-
-    /* ADD GAME */
-
-    if ($("#addGameBtn")) {
-
-        $("#addGameBtn").onclick =
-            () => openEditor();
-    }
-
-    if ($("#addGameSettings")) {
-
-        $("#addGameSettings").onclick =
-            () => openEditor();
-    }
-
-    /* RANDOM GAME */
-
-    if ($("#topRandom")) {
-
-        $("#topRandom").onclick =
-            () => {
-
-                if (!games.length) {
-
-                    toast(
-                        "No games available"
-                    );
-
-                    return;
-                }
-
-                const random =
-                    games[
-                        Math.floor(
-                            Math.random() *
-                            games.length
-                        )
-                    ];
-
-                openGame(random);
-            };
-    }
-
-    /* THEME */
-
-    if ($("#topTheme")) {
-
-        $("#topTheme").onclick =
-            () => {
-
-                cfg.dark =
-                    !cfg.dark;
-
-                save();
-                apply();
-
-                toast(
-                    cfg.dark
-                        ? "Dark mode"
-                        : "Light mode"
-                );
-            };
-    }
 }
 
 /* =========================================================
-   HOME SEARCH
+   SEARCH EVENTS
    ========================================================= */
 
 if ($("#heroSearch")) {
 
-    $("#heroSearch")
-        .addEventListener(
-            "keydown",
-            event => {
+    $("#heroSearch").addEventListener(
+        "keydown",
+        (event) => {
 
-                if (
-                    event.key !==
-                    "Enter"
-                ) {
-                    return;
-                }
-
-                showView("search");
-
-                if (
-                    $("#searchPageInput")
-                ) {
-
-                    $("#searchPageInput")
-                        .value =
-                        event.target.value;
-
-                    renderSearch(
-                        event.target.value
-                    );
-                }
+            if (
+                event.key !==
+                "Enter"
+            ) {
+                return;
             }
-        );
-}
 
-/* =========================================================
-   GAMES SEARCH
-   ========================================================= */
+            const query =
+                event.target.value;
+
+            showView("search");
+
+            if ($("#searchPageInput")) {
+
+                $("#searchPageInput")
+                    .value =
+                    query;
+            }
+
+            renderSearch(query);
+        }
+    );
+}
 
 if ($("#gamesSearch")) {
 
-    $("#gamesSearch")
-        .addEventListener(
-            "input",
-            event => {
+    $("#gamesSearch").addEventListener(
+        "input",
+        (event) => {
 
-                const query =
+            const results =
+                searchGames(
                     event.target.value
-                        .toLowerCase();
+                );
 
-                const list =
-                    games.filter(game =>
-                        game.name
-                            .toLowerCase()
-                            .includes(query)
-                        ||
-                        String(
-                            game.desc || ""
-                        )
-                            .toLowerCase()
-                            .includes(query)
-                    );
-
-                render(list);
-            }
-        );
+            renderGames(results);
+        }
+    );
 }
-
-/* =========================================================
-   SEARCH PAGE INPUT
-   ========================================================= */
 
 if ($("#searchPageInput")) {
 
-    $("#searchPageInput")
-        .addEventListener(
-            "input",
-            event => {
+    $("#searchPageInput").addEventListener(
+        "input",
+        (event) => {
 
-                renderSearch(
-                    event.target.value
-                );
-            }
-        );
+            renderSearch(
+                event.target.value
+            );
+        }
+    );
 }
 
 /* =========================================================
-   PLAYER CONTROLS
+   PLAYER BUTTONS
    ========================================================= */
 
 if ($("#playerBack")) {
@@ -998,37 +1151,13 @@ if ($("#playerBack")) {
 if ($("#playerReload")) {
 
     $("#playerReload").onclick =
-        () => {
-
-            if (!$("#gameFrame")) {
-                return;
-            }
-
-            const frame =
-                $("#gameFrame");
-
-            frame.src =
-                frame.src;
-        };
+        reloadGame;
 }
 
 if ($("#playerFullscreen")) {
 
     $("#playerFullscreen").onclick =
-        () => {
-
-            const frame =
-                $("#gameFrame");
-
-            if (!frame) return;
-
-            if (
-                frame.requestFullscreen
-            ) {
-
-                frame.requestFullscreen();
-            }
-        };
+        fullscreenGame;
 }
 
 if ($("#playerDownload")) {
@@ -1040,11 +1169,19 @@ if ($("#playerDownload")) {
                 return;
             }
 
+            const gameFile =
+                currentGame.file ||
+                currentGame.path;
+
+            if (!gameFile) {
+                return;
+            }
+
             const link =
                 document.createElement("a");
 
             link.href =
-                currentGame.path;
+                gameFile;
 
             link.download =
                 currentGame.name
@@ -1066,133 +1203,175 @@ if ($("#playerDownload")) {
 }
 
 /* =========================================================
-   EDITOR CONTROLS
+   EDITOR BUTTONS
    ========================================================= */
 
 if ($("#editorClose")) {
 
     $("#editorClose").onclick =
-        closeEditor;
+        closeGameEditor;
 }
 
 if ($("#editorCancel")) {
 
     $("#editorCancel").onclick =
-        closeEditor;
+        closeGameEditor;
 }
 
 if ($("#saveGameBtn")) {
 
     $("#saveGameBtn").onclick =
-        saveEditor;
+        saveGame;
+}
+
+if ($("#deleteGameBtn")) {
+
+    $("#deleteGameBtn").onclick =
+        deleteCurrentGame;
+}
+
+if ($("#addGameBtn")) {
+
+    $("#addGameBtn").onclick =
+        () => openGameEditor();
+}
+
+if ($("#addGameSettings")) {
+
+    $("#addGameSettings").onclick =
+        () => openGameEditor();
 }
 
 /* =========================================================
-   SETTINGS
+   SETTINGS INPUTS
    ========================================================= */
 
 if ($("#setTabName")) {
 
-    $("#setTabName").oninput =
-        event => {
+    $("#setTabName").addEventListener(
+        "input",
+        (event) => {
 
-            cfg.tabName =
+            settings.tabName =
                 event.target.value;
 
-            save();
-            apply();
-        };
+            saveData();
+
+            applySettings();
+        }
+    );
 }
 
 if ($("#setSiteName")) {
 
-    $("#setSiteName").oninput =
-        event => {
+    $("#setSiteName").addEventListener(
+        "input",
+        (event) => {
 
-            cfg.siteName =
+            settings.siteName =
                 event.target.value;
 
-            save();
-            apply();
-        };
+            saveData();
+
+            applySettings();
+        }
+    );
 }
 
 if ($("#setHomeTitle")) {
 
-    $("#setHomeTitle").oninput =
-        event => {
+    $("#setHomeTitle").addEventListener(
+        "input",
+        (event) => {
 
-            cfg.homeTitle =
+            settings.homeTitle =
                 event.target.value;
 
-            save();
-            apply();
-        };
+            saveData();
+
+            applySettings();
+        }
+    );
 }
 
 if ($("#setHomeSub")) {
 
-    $("#setHomeSub").oninput =
-        event => {
+    $("#setHomeSub").addEventListener(
+        "input",
+        (event) => {
 
-            cfg.homeSub =
+            settings.homeSubtitle =
                 event.target.value;
 
-            save();
-            apply();
-        };
+            saveData();
+
+            applySettings();
+        }
+    );
 }
 
 if ($("#setGamesTitle")) {
 
-    $("#setGamesTitle").oninput =
-        event => {
+    $("#setGamesTitle").addEventListener(
+        "input",
+        (event) => {
 
-            cfg.gamesTitle =
+            settings.gamesTitle =
                 event.target.value;
 
-            save();
-            apply();
-        };
+            saveData();
+
+            applySettings();
+        }
+    );
 }
 
 if ($("#setRecentTitle")) {
 
-    $("#setRecentTitle").oninput =
-        event => {
+    $("#setRecentTitle").addEventListener(
+        "input",
+        (event) => {
 
-            cfg.recentTitle =
+            settings.recentTitle =
                 event.target.value;
 
-            save();
-            apply();
-        };
+            saveData();
+
+            applySettings();
+        }
+    );
 }
 
 if ($("#setAccent")) {
 
-    $("#setAccent").oninput =
-        event => {
+    $("#setAccent").addEventListener(
+        "input",
+        (event) => {
 
-            cfg.accent =
+            settings.accent =
                 event.target.value;
 
-            save();
-            apply();
-        };
+            saveData();
+
+            applySettings();
+        }
+    );
 }
 
 if ($("#setCardSize")) {
 
-    $("#setCardSize").onchange =
-        event => {
+    $("#setCardSize").addEventListener(
+        "change",
+        (event) => {
 
-            cfg.cardSize =
+            settings.cardSize =
                 event.target.value;
 
-            save();
-            apply();
-        };
+            saveData();
+
+            applySettings();
+        }
+    );
 }
 
 if ($("#darkToggle")) {
@@ -1200,11 +1379,12 @@ if ($("#darkToggle")) {
     $("#darkToggle").onclick =
         () => {
 
-            cfg.dark =
-                !cfg.dark;
+            settings.darkMode =
+                !settings.darkMode;
 
-            save();
-            apply();
+            saveData();
+
+            applySettings();
         };
 }
 
@@ -1214,13 +1394,16 @@ if ($("#darkToggle")) {
 
 if ($("#bgUpload")) {
 
-    $("#bgUpload").onchange =
-        event => {
+    $("#bgUpload").addEventListener(
+        "change",
+        (event) => {
 
             const file =
                 event.target.files[0];
 
-            if (!file) return;
+            if (!file) {
+                return;
+            }
 
             const reader =
                 new FileReader();
@@ -1228,19 +1411,21 @@ if ($("#bgUpload")) {
             reader.onload =
                 () => {
 
-                    cfg.bg =
+                    settings.background =
                         reader.result;
 
-                    save();
-                    apply();
+                    saveData();
 
-                    toast(
+                    applySettings();
+
+                    showToast(
                         "Background saved"
                     );
                 };
 
             reader.readAsDataURL(file);
-        };
+        }
+    );
 }
 
 /* =========================================================
@@ -1252,12 +1437,13 @@ if ($("#clearBg")) {
     $("#clearBg").onclick =
         () => {
 
-            cfg.bg = "";
+            settings.background = "";
 
-            save();
-            apply();
+            saveData();
 
-            toast(
+            applySettings();
+
+            showToast(
                 "Background cleared"
             );
         };
@@ -1280,241 +1466,107 @@ if ($("#editModeBtn")) {
                 editMode
             );
 
-            toast(
+            showToast(
                 editMode
-                    ? "Edit mode on"
-                    : "Edit mode off"
+                    ? "Edit mode enabled"
+                    : "Edit mode disabled"
             );
         };
 }
 
 /* =========================================================
-   EXPORT SETTINGS
-   ========================================================= */
-
-if ($("#exportBtn")) {
-
-    $("#exportBtn").onclick =
-        () => {
-
-            const data = {
-
-                config: cfg,
-
-                games: games
-            };
-
-            const blob =
-                new Blob(
-                    [
-                        JSON.stringify(
-                            data,
-                            null,
-                            2
-                        )
-                    ],
-                    {
-                        type:
-                            "application/json"
-                    }
-                );
-
-            const url =
-                URL.createObjectURL(
-                    blob
-                );
-
-            const link =
-                document.createElement("a");
-
-            link.href = url;
-
-            link.download =
-                "applebottom-settings.json";
-
-            document.body.appendChild(
-                link
-            );
-
-            link.click();
-
-            link.remove();
-
-            URL.revokeObjectURL(url);
-        };
-}
-
-/* =========================================================
-   RESET
-   ========================================================= */
-
-if ($("#resetBtn")) {
-
-    $("#resetBtn").onclick =
-        () => {
-
-            if (
-                confirm(
-                    "Reset APPLEBOTTOM settings and games?"
-                )
-            ) {
-
-                localStorage.removeItem(
-                    "applebottom_cfg"
-                );
-
-                localStorage.removeItem(
-                    "applebottom_games"
-                );
-
-                location.reload();
-            }
-        };
-}
-
-/* =========================================================
-   LOCAL GAME FILE
+   LOCAL HTML GAME
    ========================================================= */
 
 if ($("#localGame")) {
 
-    $("#localGame").onchange =
-        event => {
+    $("#localGame").addEventListener(
+        "change",
+        (event) => {
 
             const file =
                 event.target.files[0];
 
-            if (!file) return;
+            if (!file) {
+                return;
+            }
 
             const url =
-                URL.createObjectURL(
-                    file
-                );
+                URL.createObjectURL(file);
 
-            localGameUrl = url;
-
-            const game = {
+            const localGame = {
 
                 id:
                     "local-" +
                     Date.now(),
 
                 name:
-                    file.name
-                        .replace(
-                            /\.html?$/i,
-                            ""
-                        ),
+                    file.name.replace(
+                        /\.html?$/i,
+                        ""
+                    ),
 
-                icon: "📄",
+                icon:
+                    "🎮",
 
-                path: url,
+                image:
+                    "",
+
+                file:
+                    url,
+
+                description:
+                    "Local game",
 
                 added:
-                    Date.now(),
-
-                desc:
-                    "Local game"
+                    Date.now()
             };
 
-            games.unshift(game);
+            games.unshift(
+                localGame
+            );
 
-            /*
-                NOTE:
-                Blob URLs don't survive a page
-                refresh. This is intended for
-                temporary local games.
-            */
+            renderAll();
 
-            render();
-            apply();
-
-            toast(
+            showToast(
                 "Local game added"
             );
-        };
+        }
+    );
 }
 
 /* =========================================================
-   GAME FILE INPUT
+   ADMIN KEYWORD
    ========================================================= */
 
-if ($("#gameFileInput")) {
-
-    $("#gameFileInput").onchange =
-        event => {
-
-            const file =
-                event.target.files[0];
-
-            if (!file) return;
-
-            const url =
-                URL.createObjectURL(
-                    file
-                );
-
-            $("#gamePathInput").value =
-                url;
-        };
-}
-
-/* =========================================================
-   ADMINME KEYWORD
-   ========================================================= */
-
-let typed = "";
+let adminText = "";
 
 document.addEventListener(
     "keydown",
-    event => {
+    (event) => {
 
-        /* ESCAPE */
+        const activeElement =
+            document.activeElement;
 
-        if (
-            event.key ===
-            "Escape"
-        ) {
+        const typing =
+            activeElement &&
+            (
+                activeElement.tagName ===
+                "INPUT" ||
+                activeElement.tagName ===
+                "TEXTAREA"
+            );
 
-            if (
-                $("#gameModal") &&
-                !$("#gameModal")
-                    .classList
-                    .contains("hidden")
-            ) {
+        if (!typing) {
 
-                closeGame();
-            }
+            adminText +=
+                event.key.toLowerCase();
 
-            if (
-                $("#gameEditor") &&
-                !$("#gameEditor")
-                    .classList
-                    .contains("hidden")
-            ) {
-
-                closeEditor();
-            }
-        }
-
-        /* ADMINME */
-
-        const tag =
-            document.activeElement?.tagName;
-
-        if (
-            tag !== "INPUT" &&
-            tag !== "TEXTAREA"
-        ) {
-
-            typed =
-                (
-                    typed +
-                    event.key.toLowerCase()
-                ).slice(-7);
+            adminText =
+                adminText.slice(-7);
 
             if (
-                typed ===
+                adminText ===
                 "adminme"
             ) {
 
@@ -1526,14 +1578,28 @@ document.addEventListener(
                     editMode
                 );
 
-                toast(
+                showToast(
                     editMode
-                        ? "Edit mode unlocked"
-                        : "Edit mode locked"
+                        ? "Edit mode enabled"
+                        : "Edit mode disabled"
                 );
 
-                typed = "";
+                adminText = "";
             }
+        }
+
+        /*
+            ESC closes things.
+        */
+
+        if (
+            event.key ===
+            "Escape"
+        ) {
+
+            closeGame();
+
+            closeGameEditor();
         }
     }
 );
@@ -1542,18 +1608,20 @@ document.addEventListener(
    CLOCK
    ========================================================= */
 
-function clock() {
+function updateClock() {
 
-    if (!$("#dateTime")) {
+    const clockElement =
+        $("#dateTime");
+
+    if (!clockElement) {
         return;
     }
 
-    const date =
+    const now =
         new Date();
 
-    $("#dateTime")
-        .textContent =
-        date.toLocaleString(
+    const date =
+        now.toLocaleDateString(
             undefined,
             {
                 weekday: "long",
@@ -1561,41 +1629,43 @@ function clock() {
                 day: "numeric",
                 year: "numeric"
             }
-        )
-        +
-        " — "
-        +
-        date.toLocaleTimeString(
+        );
+
+    const time =
+        now.toLocaleTimeString(
             undefined,
             {
-                hour: "2-digit",
+                hour: "numeric",
                 minute: "2-digit"
             }
         );
 
-    setTimeout(
-        clock,
-        1000
-    );
+    clockElement.textContent =
+        `${date} — ${time}`;
 }
 
 /* =========================================================
    START APP
    ========================================================= */
 
-bindNav();
+setupNavigation();
 
-apply();
+applySettings();
 
-render();
+renderAll();
 
-clock();
+updateClock();
+
+setInterval(
+    updateClock,
+    1000
+);
 
 /*
-   SAVE THE CLEAN GAME LIST
+    Save the cleaned game list.
 
-   This permanently removes the old demo
-   games from this browser's saved data.
+    This means the old demo games will not
+    return after refreshing the page.
 */
 
-save();
+saveData();
