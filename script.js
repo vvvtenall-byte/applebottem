@@ -2,18 +2,30 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 
 /* =========================================================
-   APPLEBOTTOM - GAME LIST
+   APPLEBOTTOM GAME LIST
    ========================================================= */
 
-const grannyGame = {
-    id: "granny",
-    name: "Granny",
-    description: "Escape the house before Granny finds you.",
-    image: "images/granny.png",
-    icon: "👵",
-    file: "games/granny/index.html",
-    added: Date.now()
-};
+const defaultGames = [
+    {
+        id: "granny",
+        name: "Granny",
+        description: "Escape the house before Granny finds you.",
+        image: "images/granny.png",
+        icon: "👵",
+        file: "games/granny/index.html",
+        added: 2
+    },
+
+    {
+        id: "fleeingthecomplex",
+        name: "Fleeing the Complex",
+        description: "Help Henry Stickmin escape the complex.",
+        image: "images/fleeingthecomplex.png",
+        icon: "🕵️",
+        file: "games/fleeingthecomplex/index.html",
+        added: 1
+    }
+];
 
 /* =========================================================
    DEFAULT SETTINGS
@@ -52,35 +64,32 @@ settings = {
 };
 
 /* =========================================================
-   LOAD GAMES
+   LOAD SAVED GAMES
    ========================================================= */
 
-let games = [];
+let savedGames = [];
 
 try {
-    const savedGames = JSON.parse(
-        localStorage.getItem("applebottom_games") || "null"
+    savedGames = JSON.parse(
+        localStorage.getItem("applebottom_games") || "[]"
     );
 
-    if (Array.isArray(savedGames)) {
-        games = savedGames;
+    if (!Array.isArray(savedGames)) {
+        savedGames = [];
     }
 } catch (error) {
-    games = [];
+    savedGames = [];
 }
 
 /* =========================================================
    REMOVE OLD / UNWANTED GAMES
    ========================================================= */
 
-/*
-    These games are removed from saved localStorage data.
-*/
-
-const unwantedGameIds = [
+const unwantedIds = [
     "fnaf",
     "five-nights-at-freddys",
     "five-nights-at-freddy",
+
     "apple-dodge",
     "neon-click",
     "memory",
@@ -93,38 +102,29 @@ const unwantedGameIds = [
 ];
 
 /*
-    This catches FNaF even if its ID is different.
+    Remove old games AND prevent FNaF
+    from coming back from localStorage.
 */
 
-games = games.filter((game) => {
+savedGames = savedGames.filter((game) => {
 
     if (!game) {
         return false;
     }
 
     const id =
-        String(game.id || "")
-            .toLowerCase();
+        String(game.id || "").toLowerCase();
 
     const name =
-        String(game.name || "")
-            .toLowerCase();
+        String(game.name || "").toLowerCase();
 
     const file =
-        String(
-            game.file ||
-            game.path ||
-            ""
-        )
-            .toLowerCase();
+        String(game.file || "").toLowerCase();
 
     const image =
-        String(game.image || "")
-            .toLowerCase();
+        String(game.image || "").toLowerCase();
 
-    /*
-        REMOVE FNAF COMPLETELY
-    */
+    /* Remove FNaF */
 
     if (
         id.includes("fnaf") ||
@@ -136,13 +136,9 @@ games = games.filter((game) => {
         return false;
     }
 
-    /*
-        REMOVE OLD DEMO GAMES
-    */
+    /* Remove old demo games */
 
-    if (
-        unwantedGameIds.includes(id)
-    ) {
+    if (unwantedIds.includes(id)) {
         return false;
     }
 
@@ -150,63 +146,65 @@ games = games.filter((game) => {
 });
 
 /* =========================================================
-   ONLY KEEP GRANNY
+   BUILD THE CURRENT GAME LIST
    ========================================================= */
 
 /*
-    For this version, Granny is the only game
-    that should appear on the site.
+    We specifically make Granny and Fleeing the Complex
+    available.
+
+    If they already exist in localStorage, we update
+    their information instead of creating duplicates.
 */
 
-games = games.filter((game) => {
-
-    if (!game) {
-        return false;
-    }
-
-    return game.id === "granny";
-});
-
-/*
-    Make sure Granny exists.
-*/
-
-if (!games.some(
-    (game) => game.id === "granny"
-)) {
-
-    games = [
-        grannyGame
-    ];
-}
-
-/*
-    Make sure Granny always has the correct
-    paths and thumbnail.
-*/
-
-const granny =
-    games.find(
+const grannySaved =
+    savedGames.find(
         (game) => game.id === "granny"
     );
 
-if (granny) {
+const fleeingSaved =
+    savedGames.find(
+        (game) => game.id === "fleeingthecomplex"
+    );
 
-    granny.name =
-        "Granny";
+const grannyGame = {
+    ...defaultGames[0],
+    ...(grannySaved || {})
+};
 
-    granny.description =
-        "Escape the house before Granny finds you.";
+const fleeingGame = {
+    ...defaultGames[1],
+    ...(fleeingSaved || {})
+};
 
-    granny.image =
-        "images/granny.png";
+/*
+    Force the correct paths and thumbnails.
+*/
 
-    granny.icon =
-        "👵";
+grannyGame.name = "Granny";
+grannyGame.image = "images/granny.png";
+grannyGame.file = "games/granny/index.html";
+grannyGame.icon = "👵";
+grannyGame.description =
+    "Escape the house before Granny finds you.";
 
-    granny.file =
-        "games/granny/index.html";
-}
+fleeingGame.name = "Fleeing the Complex";
+fleeingGame.image = "images/fleeingthecomplex.png";
+fleeingGame.file =
+    "games/fleeingthecomplex/index.html";
+fleeingGame.icon = "🕵️";
+fleeingGame.description =
+    "Help Henry Stickmin escape the complex.";
+
+/*
+    IMPORTANT:
+    Only these two games are loaded right now.
+*/
+
+let games = [
+    grannyGame,
+    fleeingGame
+];
 
 /* =========================================================
    STATE
@@ -221,21 +219,15 @@ let editMode = false;
 
 function saveData() {
 
-    /*
-        Extra safety:
-        NEVER save FNaF or the old demos.
-    */
-
-    games = games.filter(
-        (game) =>
-            game &&
-            game.id === "granny"
-    );
-
     localStorage.setItem(
         "applebottom_settings",
         JSON.stringify(settings)
     );
+
+    /*
+        Save only the current games.
+        This also permanently removes the old FNaF entry.
+    */
 
     localStorage.setItem(
         "applebottom_games",
@@ -272,19 +264,15 @@ function escapeHTML(value) {
 
 function showToast(message) {
 
-    const toast =
-        $("#toast");
+    const toast = $("#toast");
 
     if (!toast) {
         return;
     }
 
-    toast.textContent =
-        message;
+    toast.textContent = message;
 
-    toast.classList.add(
-        "show"
-    );
+    toast.classList.add("show");
 
     clearTimeout(
         window.appleToastTimer
@@ -326,8 +314,7 @@ function applySettings() {
     );
 
     if (
-        settings.cardSize ===
-        "small"
+        settings.cardSize === "small"
     ) {
 
         document.body.classList.add(
@@ -336,8 +323,7 @@ function applySettings() {
     }
 
     if (
-        settings.cardSize ===
-        "large"
+        settings.cardSize === "large"
     ) {
 
         document.body.classList.add(
@@ -372,31 +358,26 @@ function applySettings() {
     /* Branding */
 
     if ($("#brandName")) {
-
         $("#brandName").textContent =
             settings.siteName;
     }
 
     if ($("#heroName")) {
-
         $("#heroName").textContent =
             settings.homeTitle;
     }
 
     if ($("#heroSub")) {
-
         $("#heroSub").textContent =
             settings.homeSubtitle;
     }
 
     if ($("#gamesTitle")) {
-
         $("#gamesTitle").textContent =
             settings.gamesTitle;
     }
 
     if ($("#recentTitle")) {
-
         $("#recentTitle").textContent =
             settings.recentTitle;
     }
@@ -404,13 +385,11 @@ function applySettings() {
     /* Game count */
 
     if ($("#countPill")) {
-
         $("#countPill").textContent =
             games.length;
     }
 
     if ($("#gameCountSide")) {
-
         $("#gameCountSide").textContent =
             games.length;
     }
@@ -449,13 +428,10 @@ function applySettings() {
     ).forEach(
         ([selector, value]) => {
 
-            const input =
-                $(selector);
+            const input = $(selector);
 
             if (input) {
-
-                input.value =
-                    value;
+                input.value = value;
             }
         }
     );
@@ -559,7 +535,7 @@ function createGameCard(game) {
         }
     );
 
-    /* Edit */
+    /* Edit button */
 
     const editButton =
         card.querySelector(
@@ -612,9 +588,7 @@ function renderRecentlyAdded() {
         (game) => {
 
             container.appendChild(
-                createGameCard(
-                    game
-                )
+                createGameCard(game)
             );
         }
     );
@@ -641,9 +615,7 @@ function renderGames(
         (game) => {
 
             container.appendChild(
-                createGameCard(
-                    game
-                )
+                createGameCard(game)
             );
         }
     );
@@ -681,19 +653,16 @@ function renderAll() {
 
 function updateGameCount() {
 
-    const count =
-        games.length;
-
     if ($("#countPill")) {
 
         $("#countPill").textContent =
-            count;
+            games.length;
     }
 
     if ($("#gameCountSide")) {
 
         $("#gameCountSide").textContent =
-            count;
+            games.length;
     }
 }
 
@@ -709,7 +678,6 @@ function searchGames(query) {
             .toLowerCase();
 
     if (!search) {
-
         return games;
     }
 
@@ -723,8 +691,7 @@ function searchGames(query) {
 
             const description =
                 String(
-                    game.description ||
-                    ""
+                    game.description || ""
                 ).toLowerCase();
 
             return (
@@ -742,9 +709,7 @@ function searchGames(query) {
 function renderSearch(query) {
 
     const results =
-        searchGames(
-            query
-        );
+        searchGames(query);
 
     const container =
         $("#searchGrid");
@@ -759,9 +724,7 @@ function renderSearch(query) {
         (game) => {
 
             container.appendChild(
-                createGameCard(
-                    game
-                )
+                createGameCard(game)
             );
         }
     );
@@ -781,9 +744,7 @@ function renderSearch(query) {
    NAVIGATION
    ========================================================= */
 
-function showView(
-    viewName
-) {
+function showView(viewName) {
 
     $$(".view").forEach(
         (view) => {
@@ -836,20 +797,16 @@ function showView(
     });
 
     if (
-        viewName ===
-        "search" &&
+        viewName === "search" &&
         $("#searchPageInput")
     ) {
 
-        setTimeout(
-            () => {
+        setTimeout(() => {
 
-                $("#searchPageInput")
-                    .focus();
+            $("#searchPageInput")
+                .focus();
 
-            },
-            100
-        );
+        }, 100);
     }
 }
 
@@ -946,15 +903,12 @@ function reloadGame() {
     frame.src =
         "about:blank";
 
-    setTimeout(
-        () => {
+    setTimeout(() => {
 
-            frame.src =
-                currentSrc;
+        frame.src =
+            currentSrc;
 
-        },
-        30
-    );
+    }, 30);
 }
 
 /* =========================================================
@@ -999,7 +953,7 @@ function randomGame() {
         return;
     }
 
-    const random =
+    const game =
         games[
             Math.floor(
                 Math.random() *
@@ -1007,9 +961,7 @@ function randomGame() {
             )
         ];
 
-    openGame(
-        random
-    );
+    openGame(game);
 }
 
 /* =========================================================
@@ -1040,15 +992,13 @@ function openGameEditor(
     if ($("#gameIconInput")) {
 
         $("#gameIconInput").value =
-            game?.icon ||
-            "🎮";
+            game?.icon || "🎮";
     }
 
     if ($("#gamePathInput")) {
 
         $("#gamePathInput").value =
-            game?.file ||
-            "";
+            game?.file || "";
     }
 
     if ($("#deleteGameBtn")) {
@@ -1125,21 +1075,23 @@ function saveGame() {
     }
 
     /*
-        If someone attempts to add FNaF,
-        reject it.
+        Prevent FNaF from being added back.
     */
 
+    const lowerName =
+        name.toLowerCase();
+
+    const lowerFile =
+        file.toLowerCase();
+
     if (
-        name
-            .toLowerCase()
-            .includes(
-                "five nights at freddy"
-            ) ||
-        file
-            .toLowerCase()
-            .includes(
-                "/fnaf/"
-            )
+        lowerName.includes(
+            "five nights at freddy"
+        ) ||
+        lowerName === "fnaf" ||
+        lowerFile.includes(
+            "/fnaf/"
+        )
     ) {
 
         showToast(
@@ -1160,14 +1112,6 @@ function saveGame() {
         currentGame.file =
             file;
 
-        currentGame.description =
-            currentGame.description ||
-            "Play now";
-
-        /*
-            Granny keeps its thumbnail.
-        */
-
         if (
             currentGame.id ===
             "granny"
@@ -1175,6 +1119,15 @@ function saveGame() {
 
             currentGame.image =
                 "images/granny.png";
+        }
+
+        if (
+            currentGame.id ===
+            "fleeingthecomplex"
+        ) {
+
+            currentGame.image =
+                "images/fleeingthecomplex.png";
         }
 
         showToast(
@@ -1232,24 +1185,31 @@ function deleteCurrentGame() {
         return;
     }
 
+    /*
+        Do not allow the two main games
+        to accidentally disappear from
+        the default list.
+    */
+
+    if (
+        currentGame.id === "granny" ||
+        currentGame.id ===
+        "fleeingthecomplex"
+    ) {
+
+        showToast(
+            "Use the files in GitHub to remove this game"
+        );
+
+        return;
+    }
+
     games =
         games.filter(
             (game) =>
                 game.id !==
                 currentGame.id
         );
-
-    /*
-        Always restore Granny if
-        there are no games left.
-    */
-
-    if (games.length === 0) {
-
-        games = [
-            grannyGame
-        ];
-    }
 
     saveData();
 
@@ -1366,9 +1326,7 @@ if ($("#heroSearch")) {
                 "search"
             );
 
-            if (
-                $("#searchPageInput")
-            ) {
+            if ($("#searchPageInput")) {
 
                 $("#searchPageInput")
                     .value =
@@ -1405,7 +1363,7 @@ if ($("#gamesSearch")) {
 }
 
 /* =========================================================
-   SEARCH PAGE INPUT
+   SEARCH PAGE
    ========================================================= */
 
 if ($("#searchPageInput")) {
@@ -1840,10 +1798,8 @@ document.addEventListener(
         const typing =
             active &&
             (
-                active.tagName ===
-                "INPUT" ||
-                active.tagName ===
-                "TEXTAREA"
+                active.tagName === "INPUT" ||
+                active.tagName === "TEXTAREA"
             );
 
         if (!typing) {
@@ -1873,10 +1829,11 @@ document.addEventListener(
                         : "Edit mode disabled"
                 );
 
-                adminText =
-                    "";
+                adminText = "";
             }
         }
+
+        /* ESC */
 
         if (
             event.key ===
@@ -1896,10 +1853,10 @@ document.addEventListener(
 
 function updateClock() {
 
-    const clockElement =
+    const clock =
         $("#dateTime");
 
-    if (!clockElement) {
+    if (!clock) {
         return;
     }
 
@@ -1926,7 +1883,7 @@ function updateClock() {
             }
         );
 
-    clockElement.textContent =
+    clock.textContent =
         `${date} — ${time}`;
 }
 
@@ -1935,8 +1892,7 @@ function updateClock() {
    ========================================================= */
 
 /*
-    IMPORTANT:
-    Save the cleaned game list BEFORE rendering.
+    Save the cleaned list immediately.
 */
 
 saveData();
