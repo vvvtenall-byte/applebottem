@@ -1,249 +1,126 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APPLEBOTTOM UBG</title>
-    <link rel="stylesheet" href="styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>APPLEBOTTOM UBG</title>
+<link rel="icon" href="apple-logo.png">
+<link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-
-    <aside class="sidebar">
-
-        <div class="brand">
-            <img src="apple-logo.png" alt="Applebottom">
-            <span>APPLEBOTTOM<br>UBG</span>
-        </div>
-
-        <nav>
-            <button class="nav active" data-page="home">
-                🏠
-                <span>Home</span>
-            </button>
-
-            <button class="nav" data-page="games">
-                🎮
-                <span>Games</span>
-            </button>
-
-            <button class="nav" data-page="search">
-                🔍
-                <span>Search</span>
-            </button>
-        </nav>
-
-        <button class="settings-link" id="settingsBtn">
-            ⚙️
-            <span>Settings</span>
-        </button>
-
-    </aside>
-
-
-    <main>
-
-        <header>
-            <div>
-                Home
-                <em>252</em>
-            </div>
-
-            <div class="top-actions">
-                <span id="clock"></span>
-                <button>⌕</button>
-                <button>☼</button>
-                <button>⚙</button>
-            </div>
-        </header>
-
-
-        <!-- HOME -->
-
-        <section id="home" class="page active-page">
-
-            <div class="hero">
-
-                <img
-                    src="apple-logo.png"
-                    class="hero-logo"
-                    alt="Applebottom logo"
-                >
-
-                <h1>APPLEBOTTOM</h1>
-
-                <p>
-                    Your calm gaming website of the internet.
-                </p>
-
-                <div id="date"></div>
-
-                <button
-                    class="search-pill"
-                    id="heroSearch"
-                >
-                    🔍
-                    <span>Search games...</span>
-                </button>
-
-                <button
-                    class="browse"
-                    id="browse"
-                >
-                    Browse all games →
-                </button>
-
-            </div>
-
-
-            <h2>RECENTLY ADDED</h2>
-
-            <div
-                id="recent"
-                class="grid recent"
-            ></div>
-
-
-            <h2>ALL GAMES</h2>
-
-            <div
-                id="all"
-                class="grid"
-            ></div>
-
-        </section>
-
-
-        <!-- GAMES -->
-
-        <section
-            id="games"
-            class="page"
-        >
-
-            <div class="banner">
-
-                <div>
-                    <small>NEW TO APPLEBOTTOM</small>
-
-                    <strong>Welcome</strong>
-
-                    <p>
-                        Browse the latest additions to the collection.
-                    </p>
-                </div>
-
-                <img
-                    src="apple-logo.png"
-                    alt="Apple"
-                >
-
-            </div>
-
-
-            <h2>ALL GAMES</h2>
-
-            <div
-                id="gamesGrid"
-                class="grid"
-            ></div>
-
-        </section>
-
-
-        <!-- SEARCH -->
-
-        <section
-            id="searchPage"
-            class="page"
-        >
-
-            <div class="searchbox">
-
-                🔍
-
-                <input
-                    id="searchInput"
-                    placeholder="Search games..."
-                    autocomplete="off"
-                >
-
-                <kbd>ESC</kbd>
-
-            </div>
-
-            <div id="results"></div>
-
-        </section>
-
-    </main>
-
-
-    <!-- SETTINGS -->
-
-    <div id="shade">
-
-        <div class="drawer">
-
-            <div class="drawhead">
-
-                <b>Settings</b>
-
-                <button id="closeSettings">
-                    ×
-                </button>
-
-            </div>
-
-
-            <label>Tab name</label>
-
-            <input
-                id="tabName"
-                value="APPLEBOTTOM UBG"
-            >
-
-
-            <label>Accent color</label>
-
-            <div class="swatches">
-
-                <button data-c="#ff3b45"></button>
-                <button data-c="#ff6b81"></button>
-                <button data-c="#9b6cff"></button>
-                <button data-c="#4aa8ff"></button>
-                <button data-c="#50c878"></button>
-
-            </div>
-
-
-            <label>Card size</label>
-
-            <div class="sizes">
-
-                <button data-s="small">
-                    Small
-                </button>
-
-                <button
-                    data-s="medium"
-                    class="selected"
-                >
-                    Medium
-                </button>
-
-                <button data-s="large">
-                    Large
-                </button>
-
-            </div>
-
-        </div>
-
+<div class="app" id="app">
+  <aside class="sidebar">
+    <div class="brand" data-nav="home">
+      <img src="apple-logo.png" alt="Apple logo">
+      <div><strong id="brandName">APPLEBOTTOM</strong><span>UBG</span></div>
     </div>
+    <nav>
+      <button class="nav active" data-nav="home"><span>⌂</span> HOME</button>
+      <button class="nav" data-nav="games"><span>🎮</span> GAMES</button>
+      <button class="nav" data-nav="search"><span>⌕</span> SEARCH</button>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="nav" data-nav="settings"><span>⚙</span> SETTINGS</button>
+      <div class="version">APPLEBOTTOM • <span id="gameCountSide">0</span> GAMES</div>
+    </div>
+  </aside>
 
+  <main class="main">
+    <header class="topbar">
+      <div class="page-title"><h1 id="pageTitle">Home</h1><span class="count-pill" id="countPill">0</span></div>
+      <div class="top-actions">
+        <button class="icon-btn" id="topSearch" title="Search">⌕</button>
+        <button class="icon-btn" id="topRandom" title="Random game">⤨</button>
+        <button class="icon-btn" id="topTheme" title="Toggle theme">☼</button>
+        <button class="icon-btn" id="topSettings" title="Settings">⚙</button>
+      </div>
+    </header>
 
-    <script src="script.js"></script>
+    <section class="view" id="homeView">
+      <div class="hero">
+        <div class="hero-glow"></div>
+        <img class="hero-logo" src="apple-logo.png" alt="APPLEBOTTOM">
+        <div class="hero-name" id="heroName">APPLEBOTTOM</div>
+        <div class="hero-sub" id="heroSub">Your calm little corner of the internet.</div>
+        <div class="date" id="dateTime"></div>
+        <div class="search-wrap">
+          <span>⌕</span><input id="heroSearch" placeholder="Search games…" autocomplete="off"><kbd>Enter</kbd>
+        </div>
+        <button class="browse" id="browseBtn">Browse all games →</button>
+      </div>
+      <section class="section"><div class="section-head"><h2 id="recentTitle">Recently added</h2><button class="text-btn" id="recentAll">View all →</button></div><div class="game-grid recent-grid" id="recentGrid"></div></section>
+    </section>
 
+    <section class="view hidden" id="gamesView">
+      <div class="page-banner"><div><h2 id="gamesTitle">All games</h2><p>Everything available on APPLEBOTTOM.</p></div><button class="primary" id="addGameBtn">+ Add a game</button></div>
+      <div class="search-wrap compact"><span>⌕</span><input id="gamesSearch" placeholder="Search your games…"><kbd>Esc</kbd></div>
+      <div class="game-grid" id="gamesGrid"></div>
+      <div class="empty hidden" id="gamesEmpty"><div>🍎</div><h3>No games found</h3><p>Try another search.</p></div>
+    </section>
+
+    <section class="view hidden" id="searchView">
+      <div class="page-banner"><div><h2>Search</h2><p>Find a game instantly.</p></div></div>
+      <div class="search-wrap big"><span>⌕</span><input id="searchPageInput" placeholder="Search games…" autofocus><kbd>Esc</kbd></div>
+      <div class="search-meta" id="searchMeta"></div><div class="game-grid" id="searchGrid"></div>
+    </section>
+
+    <section class="view hidden" id="settingsView">
+      <div class="page-banner"><div><h2>Settings</h2><p>Make APPLEBOTTOM yours.</p></div></div>
+      <div class="settings-layout">
+        <div class="settings-card">
+          <h3>Tab & appearance</h3>
+          <label>Tab name<input id="setTabName"></label>
+          <label>Accent color<input id="setAccent" type="color"></label>
+          <label>Card size<select id="setCardSize"><option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option></select></label>
+          <div class="setting-row"><span>Dark mode</span><button class="toggle" id="darkToggle"></button></div>
+        </div>
+        <div class="settings-card">
+          <h3>Site identity</h3>
+          <label>Site name<input id="setSiteName"></label>
+          <label>Home title<input id="setHomeTitle"></label>
+          <label>Home subtitle<input id="setHomeSub"></label>
+          <label>Games title<input id="setGamesTitle"></label>
+          <label>Recently added label<input id="setRecentTitle"></label>
+        </div>
+        <div class="settings-card">
+          <h3>Background</h3>
+          <p class="hint">Choose an image or GIF for the site background. It stays saved in this browser.</p>
+          <input id="bgUpload" type="file" accept="image/*">
+          <button class="secondary full" id="clearBg">Clear background</button>
+        </div>
+        <div class="settings-card admin-card">
+          <h3>Admin tools</h3>
+          <p class="hint">Type <b>adminme</b> anywhere to unlock edit mode.</p>
+          <button class="secondary full" id="editModeBtn">Toggle edit mode</button>
+          <button class="secondary full" id="addGameSettings">+ Add a game</button>
+          <label>Open a local HTML game<input id="localGame" type="file" accept=".html,.htm"></label>
+          <button class="secondary full" id="exportBtn">Download settings</button>
+          <button class="danger full" id="resetBtn">Reset APPLEBOTTOM</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal hidden" id="gameModal">
+  <div class="player-shell">
+    <div class="player-top"><button id="playerBack">← Back</button><strong id="playerTitle">Game</strong><div class="player-actions"><button id="playerReload">↻ Reload</button><button id="playerDownload">↓ Download</button><button id="playerFullscreen">⛶ Fullscreen</button></div></div>
+    <iframe id="gameFrame" title="Game player" allowfullscreen></iframe>
+  </div>
+</div>
+
+<div class="modal hidden" id="gameEditor">
+  <div class="editor-card">
+    <div class="modal-head"><h2 id="editorTitle">Add game</h2><button class="close" id="editorClose">×</button></div>
+    <label>Game name<input id="gameNameInput" placeholder="e.g. Apple Dodge"></label>
+    <label>Thumbnail emoji<input id="gameIconInput" placeholder="🍎" maxlength="4"></label>
+    <label>Hosted game path<input id="gamePathInput" placeholder="games/apple-dodge/index.html"></label>
+    <label>Or open an HTML file<input id="gameFileInput" type="file" accept=".html,.htm"></label>
+    <div class="editor-actions"><button class="danger" id="deleteGameBtn">Delete</button><button class="secondary" id="editorCancel">Cancel</button><button class="primary" id="saveGameBtn">Save</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="script.js"></script>
 </body>
 </html>

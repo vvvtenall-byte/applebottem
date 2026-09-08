@@ -1,27 +1,28 @@
-# HONEYCOMB UBG-style website
+APPLEBOTTOM UBG
+================
 
-This is a standalone HTML/CSS/JavaScript starter site based on the screenshots you provided.
+This is a from-scratch, GitHub Pages friendly game portal inspired by the layout and feature set of the reference site. It uses the provided apple logo and APPLEBOTTOM branding.
 
-## What is already included
-- Fixed left sidebar
-- Home / Games / Search navigation
-- Dark blue/red pixel-style background
-- HONEYCOMB UBG branding
-- Live date and time
-- Recently Added row
-- Responsive game grid
-- Working search
-- Settings drawer with accent-color and card-size controls
-- Mobile-friendly layout
+FILES
+- index.html: main site
+- styles.css: complete UI styling
+- script.js: navigation, search, settings, game player, editor, localStorage
+- apple-logo.png: APPLEBOTTOM logo
+- games/: original demo games
 
-## What you need to change
-Open `script.js` and edit the `games` array.
+GITHUB PAGES
+1. Open your repository.
+2. Replace index.html, styles.css and script.js with these files.
+3. Upload apple-logo.png.
+4. Upload the entire games folder, keeping the paths exactly the same.
+5. Commit to main.
+6. Wait for GitHub Pages to redeploy.
 
-Each entry looks like:
-["Game Name", "🎮"]
+ADDING YOUR OWN GAMES
+For a permanent game, upload its HTML file/folder into the repository, then use Settings > Add a game and enter the hosted path, for example:
+games/my-game/index.html
 
-Replace the name and emoji with your own game information.
+Only host games/files you have permission to distribute. The included demo games are original examples.
 
-For real game thumbnails, the easiest next step is to replace the placeholder `<div class="placeholder">` in `makeCard()` with an image URL or local image.
-
-Do not add links to content you do not have permission to distribute or embed.
+ADMIN
+Type adminme anywhere outside an input to toggle edit mode. Settings also contains the same tools.
