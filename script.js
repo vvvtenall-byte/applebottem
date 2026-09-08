@@ -2,20 +2,18 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 
 /* =========================================================
-   APPLEBOTTOM GAME LIST
+   APPLEBOTTOM - GAME LIST
    ========================================================= */
 
-const defaultGames = [
-    {
-        id: "granny",
-        name: "Granny",
-        description: "Escape the house before Granny finds you.",
-        image: "images/granny.png",
-        icon: "👵",
-        file: "games/granny/index.html",
-        added: Date.now()
-    }
-];
+const grannyGame = {
+    id: "granny",
+    name: "Granny",
+    description: "Escape the house before Granny finds you.",
+    image: "images/granny.png",
+    icon: "👵",
+    file: "games/granny/index.html",
+    added: Date.now()
+};
 
 /* =========================================================
    DEFAULT SETTINGS
@@ -71,35 +69,143 @@ try {
     games = [];
 }
 
+/* =========================================================
+   REMOVE OLD / UNWANTED GAMES
+   ========================================================= */
+
 /*
-    Remove the old demo games from the previous version.
+    These games are removed from saved localStorage data.
 */
 
-const demoGameIds = [
+const unwantedGameIds = [
+    "fnaf",
+    "five-nights-at-freddys",
+    "five-nights-at-freddy",
     "apple-dodge",
     "neon-click",
     "memory",
     "memory-grid",
     "2048",
     "2048-mini",
+    "2048-original",
     "snake",
     "flappy-bird"
 ];
 
-games = games.filter(
-    (game) => !demoGameIds.includes(game.id)
-);
+/*
+    This catches FNaF even if its ID is different.
+*/
+
+games = games.filter((game) => {
+
+    if (!game) {
+        return false;
+    }
+
+    const id =
+        String(game.id || "")
+            .toLowerCase();
+
+    const name =
+        String(game.name || "")
+            .toLowerCase();
+
+    const file =
+        String(
+            game.file ||
+            game.path ||
+            ""
+        )
+            .toLowerCase();
+
+    const image =
+        String(game.image || "")
+            .toLowerCase();
+
+    /*
+        REMOVE FNAF COMPLETELY
+    */
+
+    if (
+        id.includes("fnaf") ||
+        name.includes("five nights at freddy") ||
+        file.includes("/fnaf/") ||
+        file.includes("\\fnaf\\") ||
+        image.includes("fnaf")
+    ) {
+        return false;
+    }
+
+    /*
+        REMOVE OLD DEMO GAMES
+    */
+
+    if (
+        unwantedGameIds.includes(id)
+    ) {
+        return false;
+    }
+
+    return true;
+});
+
+/* =========================================================
+   ONLY KEEP GRANNY
+   ========================================================= */
+
+/*
+    For this version, Granny is the only game
+    that should appear on the site.
+*/
+
+games = games.filter((game) => {
+
+    if (!game) {
+        return false;
+    }
+
+    return game.id === "granny";
+});
 
 /*
     Make sure Granny exists.
 */
 
-const grannyAlreadyExists = games.some(
+if (!games.some(
     (game) => game.id === "granny"
-);
+)) {
 
-if (!grannyAlreadyExists) {
-    games.unshift(defaultGames[0]);
+    games = [
+        grannyGame
+    ];
+}
+
+/*
+    Make sure Granny always has the correct
+    paths and thumbnail.
+*/
+
+const granny =
+    games.find(
+        (game) => game.id === "granny"
+    );
+
+if (granny) {
+
+    granny.name =
+        "Granny";
+
+    granny.description =
+        "Escape the house before Granny finds you.";
+
+    granny.image =
+        "images/granny.png";
+
+    granny.icon =
+        "👵";
+
+    granny.file =
+        "games/granny/index.html";
 }
 
 /* =========================================================
@@ -110,10 +216,22 @@ let currentGame = null;
 let editMode = false;
 
 /* =========================================================
-   SAVE EVERYTHING
+   SAVE DATA
    ========================================================= */
 
 function saveData() {
+
+    /*
+        Extra safety:
+        NEVER save FNaF or the old demos.
+    */
+
+    games = games.filter(
+        (game) =>
+            game &&
+            game.id === "granny"
+    );
+
     localStorage.setItem(
         "applebottom_settings",
         JSON.stringify(settings)
@@ -130,9 +248,11 @@ function saveData() {
    ========================================================= */
 
 function escapeHTML(value) {
+
     return String(value ?? "").replace(
         /[&<>"']/g,
         (character) => {
+
             const characters = {
                 "&": "&amp;",
                 "<": "&lt;",
@@ -151,20 +271,33 @@ function escapeHTML(value) {
    ========================================================= */
 
 function showToast(message) {
-    let toast = $("#toast");
+
+    const toast =
+        $("#toast");
 
     if (!toast) {
         return;
     }
 
-    toast.textContent = message;
-    toast.classList.add("show");
+    toast.textContent =
+        message;
 
-    clearTimeout(window.appleToastTimer);
+    toast.classList.add(
+        "show"
+    );
 
-    window.appleToastTimer = setTimeout(() => {
-        toast.classList.remove("show");
-    }, 1800);
+    clearTimeout(
+        window.appleToastTimer
+    );
+
+    window.appleToastTimer =
+        setTimeout(() => {
+
+            toast.classList.remove(
+                "show"
+            );
+
+        }, 1800);
 }
 
 /* =========================================================
@@ -179,7 +312,8 @@ function applySettings() {
     );
 
     document.title =
-        settings.tabName || "APPLEBOTTOM UBG";
+        settings.tabName ||
+        "APPLEBOTTOM UBG";
 
     document.body.classList.toggle(
         "light",
@@ -191,17 +325,27 @@ function applySettings() {
         "card-large"
     );
 
-    if (settings.cardSize === "small") {
-        document.body.classList.add("card-small");
+    if (
+        settings.cardSize ===
+        "small"
+    ) {
+
+        document.body.classList.add(
+            "card-small"
+        );
     }
 
-    if (settings.cardSize === "large") {
-        document.body.classList.add("card-large");
+    if (
+        settings.cardSize ===
+        "large"
+    ) {
+
+        document.body.classList.add(
+            "card-large"
+        );
     }
 
-    /*
-        Background
-    */
+    /* Background */
 
     if (settings.background) {
 
@@ -225,76 +369,99 @@ function applySettings() {
         );
     }
 
-    /*
-        Branding
-    */
+    /* Branding */
 
     if ($("#brandName")) {
+
         $("#brandName").textContent =
             settings.siteName;
     }
 
     if ($("#heroName")) {
+
         $("#heroName").textContent =
             settings.homeTitle;
     }
 
     if ($("#heroSub")) {
+
         $("#heroSub").textContent =
             settings.homeSubtitle;
     }
 
     if ($("#gamesTitle")) {
+
         $("#gamesTitle").textContent =
             settings.gamesTitle;
     }
 
     if ($("#recentTitle")) {
+
         $("#recentTitle").textContent =
             settings.recentTitle;
     }
 
-    /*
-        Game count
-    */
+    /* Game count */
 
     if ($("#countPill")) {
+
         $("#countPill").textContent =
             games.length;
     }
 
     if ($("#gameCountSide")) {
+
         $("#gameCountSide").textContent =
             games.length;
     }
 
-    /*
-        Settings inputs
-    */
+    /* Settings inputs */
 
-    const inputs = {
-        "#setTabName": settings.tabName,
-        "#setSiteName": settings.siteName,
-        "#setHomeTitle": settings.homeTitle,
-        "#setHomeSub": settings.homeSubtitle,
-        "#setGamesTitle": settings.gamesTitle,
-        "#setRecentTitle": settings.recentTitle,
-        "#setAccent": settings.accent,
-        "#setCardSize": settings.cardSize
+    const settingInputs = {
+
+        "#setTabName":
+            settings.tabName,
+
+        "#setSiteName":
+            settings.siteName,
+
+        "#setHomeTitle":
+            settings.homeTitle,
+
+        "#setHomeSub":
+            settings.homeSubtitle,
+
+        "#setGamesTitle":
+            settings.gamesTitle,
+
+        "#setRecentTitle":
+            settings.recentTitle,
+
+        "#setAccent":
+            settings.accent,
+
+        "#setCardSize":
+            settings.cardSize
     };
 
-    Object.entries(inputs).forEach(
+    Object.entries(
+        settingInputs
+    ).forEach(
         ([selector, value]) => {
 
-            const input = $(selector);
+            const input =
+                $(selector);
 
             if (input) {
-                input.value = value;
+
+                input.value =
+                    value;
             }
         }
     );
 
     if ($("#darkToggle")) {
+
         $("#darkToggle").classList.toggle(
             "on",
             settings.darkMode
@@ -309,11 +476,15 @@ function applySettings() {
 function createGameCard(game) {
 
     const card =
-        document.createElement("article");
+        document.createElement(
+            "article"
+        );
 
-    card.className = "game-card";
+    card.className =
+        "game-card";
 
-    card.dataset.gameId = game.id;
+    card.dataset.gameId =
+        game.id;
 
     const image =
         game.image
@@ -331,6 +502,7 @@ function createGameCard(game) {
             : "";
 
     card.innerHTML = `
+
         <button
             class="card-edit"
             type="button"
@@ -340,17 +512,23 @@ function createGameCard(game) {
         </button>
 
         <div class="thumb">
+
             ${image}
 
             <span class="thumb-fallback">
-                ${escapeHTML(game.icon || "🎮")}
+                ${escapeHTML(
+                    game.icon || "🎮"
+                )}
             </span>
+
         </div>
 
         <div class="game-info">
 
             <div class="game-name">
-                ${escapeHTML(game.name)}
+                ${escapeHTML(
+                    game.name
+                )}
             </div>
 
             <div class="game-desc">
@@ -363,16 +541,16 @@ function createGameCard(game) {
         </div>
     `;
 
-    /*
-        Clicking the card opens the game.
-    */
+    /* Open game */
 
     card.addEventListener(
         "click",
         (event) => {
 
             if (
-                event.target.closest(".card-edit")
+                event.target.closest(
+                    ".card-edit"
+                )
             ) {
                 return;
             }
@@ -381,12 +559,12 @@ function createGameCard(game) {
         }
     );
 
-    /*
-        Edit button.
-    */
+    /* Edit */
 
     const editButton =
-        card.querySelector(".card-edit");
+        card.querySelector(
+            ".card-edit"
+        );
 
     if (editButton) {
 
@@ -396,7 +574,9 @@ function createGameCard(game) {
 
                 event.stopPropagation();
 
-                openGameEditor(game);
+                openGameEditor(
+                    game
+                );
             }
         );
     }
@@ -405,7 +585,7 @@ function createGameCard(game) {
 }
 
 /* =========================================================
-   RENDER RECENT GAMES
+   RECENTLY ADDED
    ========================================================= */
 
 function renderRecentlyAdded() {
@@ -432,17 +612,21 @@ function renderRecentlyAdded() {
         (game) => {
 
             container.appendChild(
-                createGameCard(game)
+                createGameCard(
+                    game
+                )
             );
         }
     );
 }
 
 /* =========================================================
-   RENDER ALL GAMES
+   ALL GAMES
    ========================================================= */
 
-function renderGames(list = games) {
+function renderGames(
+    list = games
+) {
 
     const container =
         $("#gamesGrid");
@@ -457,7 +641,9 @@ function renderGames(list = games) {
         (game) => {
 
             container.appendChild(
-                createGameCard(game)
+                createGameCard(
+                    game
+                )
             );
         }
     );
@@ -482,7 +668,9 @@ function renderAll() {
 
     renderRecentlyAdded();
 
-    renderGames(games);
+    renderGames(
+        games
+    );
 
     updateGameCount();
 }
@@ -493,14 +681,19 @@ function renderAll() {
 
 function updateGameCount() {
 
+    const count =
+        games.length;
+
     if ($("#countPill")) {
+
         $("#countPill").textContent =
-            games.length;
+            count;
     }
 
     if ($("#gameCountSide")) {
+
         $("#gameCountSide").textContent =
-            games.length;
+            count;
     }
 }
 
@@ -516,6 +709,7 @@ function searchGames(query) {
             .toLowerCase();
 
     if (!search) {
+
         return games;
     }
 
@@ -523,12 +717,14 @@ function searchGames(query) {
         (game) => {
 
             const name =
-                String(game.name || "")
-                    .toLowerCase();
+                String(
+                    game.name || ""
+                ).toLowerCase();
 
             const description =
                 String(
-                    game.description || ""
+                    game.description ||
+                    ""
                 ).toLowerCase();
 
             return (
@@ -546,7 +742,9 @@ function searchGames(query) {
 function renderSearch(query) {
 
     const results =
-        searchGames(query);
+        searchGames(
+            query
+        );
 
     const container =
         $("#searchGrid");
@@ -561,7 +759,9 @@ function renderSearch(query) {
         (game) => {
 
             container.appendChild(
-                createGameCard(game)
+                createGameCard(
+                    game
+                )
             );
         }
     );
@@ -581,7 +781,9 @@ function renderSearch(query) {
    NAVIGATION
    ========================================================= */
 
-function showView(viewName) {
+function showView(
+    viewName
+) {
 
     $$(".view").forEach(
         (view) => {
@@ -616,6 +818,7 @@ function showView(viewName) {
     if ($("#pageTitle")) {
 
         const titles = {
+
             home: "Home",
             games: "Games",
             search: "Search",
@@ -633,18 +836,25 @@ function showView(viewName) {
     });
 
     if (
-        viewName === "search" &&
+        viewName ===
+        "search" &&
         $("#searchPageInput")
     ) {
 
-        setTimeout(() => {
-            $("#searchPageInput").focus();
-        }, 100);
+        setTimeout(
+            () => {
+
+                $("#searchPageInput")
+                    .focus();
+
+            },
+            100
+        );
     }
 }
 
 /* =========================================================
-   OPEN GRANNY / OTHER GAME
+   OPEN GAME
    ========================================================= */
 
 function openGame(game) {
@@ -653,15 +863,8 @@ function openGame(game) {
         return;
     }
 
-    currentGame = game;
-
-    /*
-        THIS IS THE IMPORTANT PART.
-
-        Granny loads from:
-
-        games/granny/index.html
-    */
+    currentGame =
+        game;
 
     if ($("#playerTitle")) {
 
@@ -675,9 +878,7 @@ function openGame(game) {
     if (frame) {
 
         frame.src =
-            game.file ||
-            game.path ||
-            "about:blank";
+            game.file;
     }
 
     const modal =
@@ -719,9 +920,11 @@ function closeGame() {
         );
     }
 
-    document.body.style.overflow = "";
+    document.body.style.overflow =
+        "";
 
-    currentGame = null;
+    currentGame =
+        null;
 }
 
 /* =========================================================
@@ -737,23 +940,21 @@ function reloadGame() {
         return;
     }
 
-    /*
-        Reload the current game without
-        changing the game path.
-    */
-
     const currentSrc =
         frame.src;
 
     frame.src =
         "about:blank";
 
-    setTimeout(() => {
+    setTimeout(
+        () => {
 
-        frame.src =
-            currentSrc;
+            frame.src =
+                currentSrc;
 
-    }, 30);
+        },
+        30
+    );
 }
 
 /* =========================================================
@@ -769,7 +970,9 @@ function fullscreenGame() {
         return;
     }
 
-    if (frame.requestFullscreen) {
+    if (
+        frame.requestFullscreen
+    ) {
 
         frame.requestFullscreen();
 
@@ -796,7 +999,7 @@ function randomGame() {
         return;
     }
 
-    const game =
+    const random =
         games[
             Math.floor(
                 Math.random() *
@@ -804,16 +1007,21 @@ function randomGame() {
             )
         ];
 
-    openGame(game);
+    openGame(
+        random
+    );
 }
 
 /* =========================================================
    GAME EDITOR
    ========================================================= */
 
-function openGameEditor(game = null) {
+function openGameEditor(
+    game = null
+) {
 
-    currentGame = game;
+    currentGame =
+        game;
 
     if ($("#editorTitle")) {
 
@@ -832,14 +1040,14 @@ function openGameEditor(game = null) {
     if ($("#gameIconInput")) {
 
         $("#gameIconInput").value =
-            game?.icon || "🎮";
+            game?.icon ||
+            "🎮";
     }
 
     if ($("#gamePathInput")) {
 
         $("#gamePathInput").value =
             game?.file ||
-            game?.path ||
             "";
     }
 
@@ -872,7 +1080,8 @@ function closeGameEditor() {
             .add("hidden");
     }
 
-    currentGame = null;
+    currentGame =
+        null;
 }
 
 /* =========================================================
@@ -915,6 +1124,31 @@ function saveGame() {
         return;
     }
 
+    /*
+        If someone attempts to add FNaF,
+        reject it.
+    */
+
+    if (
+        name
+            .toLowerCase()
+            .includes(
+                "five nights at freddy"
+            ) ||
+        file
+            .toLowerCase()
+            .includes(
+                "/fnaf/"
+            )
+    ) {
+
+        showToast(
+            "That game cannot be added"
+        );
+
+        return;
+    }
+
     if (currentGame) {
 
         currentGame.name =
@@ -929,6 +1163,19 @@ function saveGame() {
         currentGame.description =
             currentGame.description ||
             "Play now";
+
+        /*
+            Granny keeps its thumbnail.
+        */
+
+        if (
+            currentGame.id ===
+            "granny"
+        ) {
+
+            currentGame.image =
+                "images/granny.png";
+        }
 
         showToast(
             "Game updated"
@@ -992,6 +1239,18 @@ function deleteCurrentGame() {
                 currentGame.id
         );
 
+    /*
+        Always restore Granny if
+        there are no games left.
+    */
+
+    if (games.length === 0) {
+
+        games = [
+            grannyGame
+        ];
+    }
+
     saveData();
 
     renderAll();
@@ -1004,7 +1263,7 @@ function deleteCurrentGame() {
 }
 
 /* =========================================================
-   NAV BUTTONS
+   NAVIGATION BUTTONS
    ========================================================= */
 
 function setupNavigation() {
@@ -1027,13 +1286,17 @@ function setupNavigation() {
     if ($("#topSearch")) {
 
         $("#topSearch").onclick =
-            () => showView("search");
+            () => showView(
+                "search"
+            );
     }
 
     if ($("#topSettings")) {
 
         $("#topSettings").onclick =
-            () => showView("settings");
+            () => showView(
+                "settings"
+            );
     }
 
     if ($("#topRandom")) {
@@ -1065,18 +1328,22 @@ function setupNavigation() {
     if ($("#browseBtn")) {
 
         $("#browseBtn").onclick =
-            () => showView("games");
+            () => showView(
+                "games"
+            );
     }
 
     if ($("#recentAll")) {
 
         $("#recentAll").onclick =
-            () => showView("games");
+            () => showView(
+                "games"
+            );
     }
 }
 
 /* =========================================================
-   SEARCH EVENTS
+   HOME SEARCH
    ========================================================= */
 
 if ($("#heroSearch")) {
@@ -1095,19 +1362,29 @@ if ($("#heroSearch")) {
             const query =
                 event.target.value;
 
-            showView("search");
+            showView(
+                "search"
+            );
 
-            if ($("#searchPageInput")) {
+            if (
+                $("#searchPageInput")
+            ) {
 
                 $("#searchPageInput")
                     .value =
                     query;
             }
 
-            renderSearch(query);
+            renderSearch(
+                query
+            );
         }
     );
 }
+
+/* =========================================================
+   GAMES SEARCH
+   ========================================================= */
 
 if ($("#gamesSearch")) {
 
@@ -1120,10 +1397,16 @@ if ($("#gamesSearch")) {
                     event.target.value
                 );
 
-            renderGames(results);
+            renderGames(
+                results
+            );
         }
     );
 }
+
+/* =========================================================
+   SEARCH PAGE INPUT
+   ========================================================= */
 
 if ($("#searchPageInput")) {
 
@@ -1139,7 +1422,7 @@ if ($("#searchPageInput")) {
 }
 
 /* =========================================================
-   PLAYER BUTTONS
+   PLAYER CONTROLS
    ========================================================= */
 
 if ($("#playerBack")) {
@@ -1170,15 +1453,16 @@ if ($("#playerDownload")) {
             }
 
             const gameFile =
-                currentGame.file ||
-                currentGame.path;
+                currentGame.file;
 
             if (!gameFile) {
                 return;
             }
 
             const link =
-                document.createElement("a");
+                document.createElement(
+                    "a"
+                );
 
             link.href =
                 gameFile;
@@ -1203,7 +1487,7 @@ if ($("#playerDownload")) {
 }
 
 /* =========================================================
-   EDITOR BUTTONS
+   EDITOR CONTROLS
    ========================================================= */
 
 if ($("#editorClose")) {
@@ -1243,7 +1527,7 @@ if ($("#addGameSettings")) {
 }
 
 /* =========================================================
-   SETTINGS INPUTS
+   SETTINGS
    ========================================================= */
 
 if ($("#setTabName")) {
@@ -1423,7 +1707,9 @@ if ($("#bgUpload")) {
                     );
                 };
 
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(
+                file
+            );
         }
     );
 }
@@ -1437,7 +1723,8 @@ if ($("#clearBg")) {
     $("#clearBg").onclick =
         () => {
 
-            settings.background = "";
+            settings.background =
+                "";
 
             saveData();
 
@@ -1475,7 +1762,7 @@ if ($("#editModeBtn")) {
 }
 
 /* =========================================================
-   LOCAL HTML GAME
+   LOCAL GAME
    ========================================================= */
 
 if ($("#localGame")) {
@@ -1492,7 +1779,9 @@ if ($("#localGame")) {
             }
 
             const url =
-                URL.createObjectURL(file);
+                URL.createObjectURL(
+                    file
+                );
 
             const localGame = {
 
@@ -1536,7 +1825,7 @@ if ($("#localGame")) {
 }
 
 /* =========================================================
-   ADMIN KEYWORD
+   ADMINME
    ========================================================= */
 
 let adminText = "";
@@ -1545,15 +1834,15 @@ document.addEventListener(
     "keydown",
     (event) => {
 
-        const activeElement =
+        const active =
             document.activeElement;
 
         const typing =
-            activeElement &&
+            active &&
             (
-                activeElement.tagName ===
+                active.tagName ===
                 "INPUT" ||
-                activeElement.tagName ===
+                active.tagName ===
                 "TEXTAREA"
             );
 
@@ -1584,13 +1873,10 @@ document.addEventListener(
                         : "Edit mode disabled"
                 );
 
-                adminText = "";
+                adminText =
+                    "";
             }
         }
-
-        /*
-            ESC closes things.
-        */
 
         if (
             event.key ===
@@ -1648,6 +1934,13 @@ function updateClock() {
    START APP
    ========================================================= */
 
+/*
+    IMPORTANT:
+    Save the cleaned game list BEFORE rendering.
+*/
+
+saveData();
+
 setupNavigation();
 
 applySettings();
@@ -1660,12 +1953,3 @@ setInterval(
     updateClock,
     1000
 );
-
-/*
-    Save the cleaned game list.
-
-    This means the old demo games will not
-    return after refreshing the page.
-*/
-
-saveData();
