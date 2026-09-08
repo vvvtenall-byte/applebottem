@@ -1,1625 +1,540 @@
-const $ = (selector) => document.querySelector(selector);
-const $$ = (selector) => [...document.querySelectorAll(selector)];
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
 
-/* =========================================================
-   APPLEBOTTOM
-   GAME LIST IS CURRENTLY EMPTY
-   ========================================================= */
+const defaults = {
+  tabName: "APPLEBOTTOM UBG",
+  siteName: "APPLEBOTTOM",
+  homeTitle: "APPLEBOTTOM",
+  homeSub: "Your calm little corner of the internet.",
+  gamesTitle: "All games",
+  recentTitle: "Recently added",
+  accent: "#ff334f",
+  cardSize: "medium",
+  dark: true,
+  bg: ""
+};
+
+let cfg = { ...defaults };
+try {
+  cfg = { ...defaults, ...JSON.parse(localStorage.getItem("applebottom_cfg") || "{}") };
+} catch (_) {}
 
 let games = [];
-
-/* =========================================================
-   SETTINGS
-   ========================================================= */
-
-const defaultSettings = {
-    tabName: "APPLEBOTTOM UBG",
-    siteName: "APPLEBOTTOM",
-    homeTitle: "APPLEBOTTOM",
-    homeSubtitle: "Your calm little corner of the internet.",
-    gamesTitle: "All games",
-    recentTitle: "Recently added",
-    accent: "#ff334f",
-    cardSize: "medium",
-    darkMode: true,
-    background: ""
-};
-
-let settings = {};
-
-try {
-    settings = JSON.parse(
-        localStorage.getItem("applebottom_settings") || "{}"
-    );
-} catch (error) {
-    settings = {};
-}
-
-settings = {
-    ...defaultSettings,
-    ...settings
-};
-
-/* =========================================================
-   COMPLETELY CLEAR ALL OLD GAMES
-   ========================================================= */
-
-/*
-    This deletes Granny, Fleeing the Complex,
-    FNaF, and every other game that was previously
-    saved in localStorage.
-*/
-
-localStorage.removeItem("applebottom_games");
-
-/*
-    Also clear any older game-storage names
-    that may have been used by previous versions.
-*/
-
-localStorage.removeItem("games");
-localStorage.removeItem("ubg_games");
-localStorage.removeItem("honeycomb_games");
-
-/* =========================================================
-   STATE
-   ========================================================= */
-
-let currentGame = null;
 let editMode = false;
+let currentGame = null;
+let localGameUrl = null;
+let gameCatalogLoaded = false;
 
-/* =========================================================
-   SAVE DATA
-   ========================================================= */
-
-function saveData() {
-
-    localStorage.setItem(
-        "applebottom_settings",
-        JSON.stringify(settings)
-    );
-
-    /*
-        Always save the current game list.
-        Right now this is intentionally empty.
-    */
-
-    localStorage.setItem(
-        "applebottom_games",
-        JSON.stringify([])
-    );
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[c]));
 }
 
-/* =========================================================
-   ESCAPE HTML
-   ========================================================= */
-
-function escapeHTML(value) {
-
-    return String(value ?? "").replace(
-        /[&<>"']/g,
-        (character) => {
-
-            const characters = {
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                '"': "&quot;",
-                "'": "&#039;"
-            };
-
-            return characters[character];
-        }
-    );
+function saveSettings() {
+  localStorage.setItem("applebottom_cfg", JSON.stringify(cfg));
 }
 
-/* =========================================================
-   TOAST
-   ========================================================= */
-
-function showToast(message) {
-
-    const toast = $("#toast");
-
-    if (!toast) {
-        return;
-    }
-
-    toast.textContent = message;
-
-    toast.classList.add("show");
-
-    clearTimeout(
-        window.appleToastTimer
-    );
-
-    window.appleToastTimer = setTimeout(() => {
-
-        toast.classList.remove("show");
-
-    }, 1800);
+function saveLocalGames() {
+  // Local additions are browser-only. Published games belong in games.json.
+  localStorage.setItem("applebottom_local_games", JSON.stringify(games.filter(g => g.localOnly)));
 }
 
-/* =========================================================
-   APPLY SETTINGS
-   ========================================================= */
+function toast(message) {
+  const el = $("#toast");
+  if (!el) return;
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(() => el.classList.remove("show"), 1800);
+}
 
 function applySettings() {
+  document.documentElement.style.setProperty("--accent", cfg.accent || defaults.accent);
+  document.title = cfg.tabName || defaults.tabName;
+  document.body.classList.toggle("light", !cfg.dark);
+  document.body.classList.remove("card-small", "card-large");
+  if (cfg.cardSize === "small") document.body.classList.add("card-small");
+  if (cfg.cardSize === "large") document.body.classList.add("card-large");
 
-    document.documentElement.style.setProperty(
-        "--accent",
-        settings.accent
-    );
+  if (cfg.bg) {
+    document.body.classList.add("has-bg");
+    document.documentElement.style.setProperty("--site-bg", `url(${cfg.bg})`);
+  } else {
+    document.body.classList.remove("has-bg");
+  }
 
-    document.title =
-        settings.tabName ||
-        "APPLEBOTTOM UBG";
+  $("#brandName").textContent = cfg.siteName;
+  $("#heroName").textContent = cfg.homeTitle;
+  $("#heroSub").textContent = cfg.homeSub;
+  $("#gamesTitle").textContent = cfg.gamesTitle;
+  $("#recentTitle").textContent = cfg.recentTitle;
+  $("#countPill").textContent = games.length;
+  $("#gameCountSide").textContent = games.length;
 
-    document.body.classList.toggle(
-        "light",
-        !settings.darkMode
-    );
-
-    document.body.classList.remove(
-        "card-small",
-        "card-large"
-    );
-
-    if (settings.cardSize === "small") {
-
-        document.body.classList.add(
-            "card-small"
-        );
-    }
-
-    if (settings.cardSize === "large") {
-
-        document.body.classList.add(
-            "card-large"
-        );
-    }
-
-    /* Background */
-
-    if (settings.background) {
-
-        document.documentElement.style.setProperty(
-            "--site-background",
-            `url("${settings.background}")`
-        );
-
-        document.body.classList.add(
-            "has-background"
-        );
-
-    } else {
-
-        document.body.classList.remove(
-            "has-background"
-        );
-
-        document.documentElement.style.removeProperty(
-            "--site-background"
-        );
-    }
-
-    /* Branding */
-
-    if ($("#brandName")) {
-
-        $("#brandName").textContent =
-            settings.siteName;
-    }
-
-    if ($("#heroName")) {
-
-        $("#heroName").textContent =
-            settings.homeTitle;
-    }
-
-    if ($("#heroSub")) {
-
-        $("#heroSub").textContent =
-            settings.homeSubtitle;
-    }
-
-    if ($("#gamesTitle")) {
-
-        $("#gamesTitle").textContent =
-            settings.gamesTitle;
-    }
-
-    if ($("#recentTitle")) {
-
-        $("#recentTitle").textContent =
-            settings.recentTitle;
-    }
-
-    /* Game count */
-
-    if ($("#countPill")) {
-
-        $("#countPill").textContent =
-            games.length;
-    }
-
-    if ($("#gameCountSide")) {
-
-        $("#gameCountSide").textContent =
-            games.length;
-    }
-
-    /* Settings inputs */
-
-    const settingInputs = {
-
-        "#setTabName":
-            settings.tabName,
-
-        "#setSiteName":
-            settings.siteName,
-
-        "#setHomeTitle":
-            settings.homeTitle,
-
-        "#setHomeSub":
-            settings.homeSubtitle,
-
-        "#setGamesTitle":
-            settings.gamesTitle,
-
-        "#setRecentTitle":
-            settings.recentTitle,
-
-        "#setAccent":
-            settings.accent,
-
-        "#setCardSize":
-            settings.cardSize
-    };
-
-    Object.entries(settingInputs).forEach(
-        ([selector, value]) => {
-
-            const input = $(selector);
-
-            if (input) {
-                input.value = value;
-            }
-        }
-    );
-
-    if ($("#darkToggle")) {
-
-        $("#darkToggle").classList.toggle(
-            "on",
-            settings.darkMode
-        );
-    }
+  $("#setTabName").value = cfg.tabName;
+  $("#setSiteName").value = cfg.siteName;
+  $("#setHomeTitle").value = cfg.homeTitle;
+  $("#setHomeSub").value = cfg.homeSub;
+  $("#setGamesTitle").value = cfg.gamesTitle;
+  $("#setRecentTitle").value = cfg.recentTitle;
+  $("#setAccent").value = cfg.accent;
+  $("#setCardSize").value = cfg.cardSize;
+  $("#darkToggle").classList.toggle("on", cfg.dark);
 }
 
-/* =========================================================
-   CREATE GAME CARD
-   ========================================================= */
+function normalizeGame(game, index = 0) {
+  if (!game || typeof game !== "object") return null;
 
-function createGameCard(game) {
+  const file = String(game.file || game.path || "").trim();
+  const image = String(game.image || "").trim();
+  const name = String(game.name || `Game ${index + 1}`).trim();
 
-    const card =
-        document.createElement("article");
+  if (!file && !game.localOnly) return null;
 
-    card.className =
-        "game-card";
-
-    card.dataset.gameId =
-        game.id;
-
-    const image =
-        game.image
-            ? `
-                <img
-                    src="${game.image}"
-                    alt="${escapeHTML(game.name)}"
-                    loading="lazy"
-                >
-            `
-            : "";
-
-    card.innerHTML = `
-
-        <button
-            class="card-edit"
-            type="button"
-            title="Edit game"
-        >
-            ✎
-        </button>
-
-        <div class="thumb">
-
-            ${image}
-
-            <span class="thumb-fallback">
-                ${escapeHTML(
-                    game.icon || "🎮"
-                )}
-            </span>
-
-        </div>
-
-        <div class="game-info">
-
-            <div class="game-name">
-                ${escapeHTML(game.name)}
-            </div>
-
-            <div class="game-desc">
-                ${escapeHTML(
-                    game.description ||
-                    "Play now"
-                )}
-            </div>
-
-        </div>
-    `;
-
-    card.addEventListener(
-        "click",
-        (event) => {
-
-            if (
-                event.target.closest(
-                    ".card-edit"
-                )
-            ) {
-                return;
-            }
-
-            openGame(game);
-        }
-    );
-
-    const editButton =
-        card.querySelector(
-            ".card-edit"
-        );
-
-    if (editButton) {
-
-        editButton.addEventListener(
-            "click",
-            (event) => {
-
-                event.stopPropagation();
-
-                openGameEditor(game);
-            }
-        );
-    }
-
-    return card;
+  return {
+    id: String(game.id || `${name}-${index}`).toLowerCase().replace(/[^a-z0-9]+/g, "-") + `-${index}`,
+    name,
+    desc: String(game.desc || game.description || "Play now"),
+    icon: String(game.icon || "🎮"),
+    image,
+    file,
+    added: Number(game.added) || Date.now() - index,
+    localOnly: !!game.localOnly
+  };
 }
 
-/* =========================================================
-   RECENTLY ADDED
-   ========================================================= */
-
-function renderRecentlyAdded() {
-
-    const container =
-        $("#recentGrid");
-
-    if (!container) {
-        return;
-    }
-
-    container.innerHTML = "";
-
-    /*
-        There are currently no games,
-        so nothing gets added here.
-    */
-
-    if (games.length === 0) {
-
-        container.innerHTML = `
-            <div class="empty-state">
-                No games have been added yet.
-            </div>
-        `;
-    }
+function loadLocalGames() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("applebottom_local_games") || "[]");
+    return Array.isArray(saved) ? saved.map(normalizeGame).filter(Boolean) : [];
+  } catch (_) {
+    return [];
+  }
 }
 
-/* =========================================================
-   ALL GAMES
-   ========================================================= */
+async function loadGames() {
+  let published = [];
 
-function renderGames(list = games) {
-
-    const container =
-        $("#gamesGrid");
-
-    if (!container) {
-        return;
+  try {
+    const response = await fetch("games.json", { cache: "no-store" });
+    if (response.ok) {
+      const data = await response.json();
+      published = Array.isArray(data) ? data : (Array.isArray(data.games) ? data.games : []);
     }
+  } catch (_) {
+    // Opening the site directly as a file can block fetch(). GitHub Pages will work normally.
+  }
 
-    container.innerHTML = "";
+  const local = loadLocalGames();
+  const normalized = [...published, ...local]
+    .map(normalizeGame)
+    .filter(Boolean);
 
-    list.forEach((game) => {
+  const seen = new Set();
+  games = normalized.filter((g) => {
+    const key = `${g.name.toLowerCase()}|${g.file}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 
-        container.appendChild(
-            createGameCard(game)
-        );
-    });
-
-    const empty =
-        $("#gamesEmpty");
-
-    if (empty) {
-
-        empty.classList.toggle(
-            "hidden",
-            list.length !== 0
-        );
-    }
+  gameCatalogLoaded = true;
+  applySettings();
+  render();
 }
 
-/* =========================================================
-   RENDER EVERYTHING
-   ========================================================= */
+function createCard(game) {
+  const el = document.createElement("article");
+  el.className = "game-card";
+  el.dataset.gameId = game.id;
 
-function renderAll() {
+  const thumbnail = game.image
+    ? `<img src="${escapeHtml(game.image)}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='${escapeHtml(game.icon || "🎮")}'">`
+    : escapeHtml(game.icon || "🎮");
 
-    renderRecentlyAdded();
+  el.innerHTML = `
+    <button class="card-edit" title="Edit game" type="button">✎</button>
+    <div class="thumb">${thumbnail}</div>
+    <div class="game-info">
+      <div class="game-name">${escapeHtml(game.name)}</div>
+      <div class="game-desc">${escapeHtml(game.desc || "Play now")}</div>
+    </div>
+  `;
 
-    renderGames(games);
+  el.addEventListener("click", (event) => {
+    if (event.target.closest(".card-edit")) return;
+    openGame(game);
+  });
 
-    updateGameCount();
+  el.querySelector(".card-edit").addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (!editMode) return;
+    openEditor(game);
+  });
+
+  return el;
 }
 
-/* =========================================================
-   GAME COUNT
-   ========================================================= */
+function render(list = games) {
+  const sorted = [...games].sort((a, b) => b.added - a.added);
+  const recent = sorted.slice(0, 6);
 
-function updateGameCount() {
+  $("#recentGrid").replaceChildren(...recent.map(createCard));
+  $("#gamesGrid").replaceChildren(...list.map(createCard));
 
-    if ($("#countPill")) {
+  const empty = $("#gamesEmpty");
+  if (empty) empty.classList.toggle("hidden", list.length !== 0);
 
-        $("#countPill").textContent =
-            games.length;
-    }
-
-    if ($("#gameCountSide")) {
-
-        $("#gameCountSide").textContent =
-            games.length;
-    }
+  $("#countPill").textContent = games.length;
+  $("#gameCountSide").textContent = games.length;
 }
-
-/* =========================================================
-   SEARCH
-   ========================================================= */
-
-function searchGames(query) {
-
-    const search =
-        query
-            .trim()
-            .toLowerCase();
-
-    if (!search) {
-        return games;
-    }
-
-    return games.filter((game) => {
-
-        const name =
-            String(
-                game.name || ""
-            ).toLowerCase();
-
-        const description =
-            String(
-                game.description || ""
-            ).toLowerCase();
-
-        return (
-            name.includes(search) ||
-            description.includes(search)
-        );
-    });
-}
-
-/* =========================================================
-   SEARCH PAGE
-   ========================================================= */
 
 function renderSearch(query) {
+  const term = query.trim().toLowerCase();
+  const result = term
+    ? games.filter(g => g.name.toLowerCase().includes(term) || g.desc.toLowerCase().includes(term))
+    : games;
 
-    const results =
-        searchGames(query);
-
-    const container =
-        $("#searchGrid");
-
-    if (!container) {
-        return;
-    }
-
-    container.innerHTML = "";
-
-    results.forEach((game) => {
-
-        container.appendChild(
-            createGameCard(game)
-        );
-    });
-
-    if ($("#searchMeta")) {
-
-        $("#searchMeta").textContent =
-            `${results.length} ${
-                results.length === 1
-                    ? "game"
-                    : "games"
-            } found`;
-    }
+  $("#searchMeta").textContent = `${result.length} game${result.length === 1 ? "" : "s"} found`;
+  $("#searchGrid").replaceChildren(...result.map(createCard));
 }
 
-/* =========================================================
-   NAVIGATION
-   ========================================================= */
+function showView(name) {
+  $$(".view").forEach(v => v.classList.add("hidden"));
+  const view = $(`#${name}View`);
+  if (view) view.classList.remove("hidden");
 
-function showView(viewName) {
+  $$(".nav").forEach(btn => btn.classList.toggle("active", btn.dataset.nav === name));
+  $("#pageTitle").textContent = name === "home" ? "Home" : name[0].toUpperCase() + name.slice(1);
+  window.scrollTo({ top: 0, behavior: "smooth" });
 
-    $$(".view").forEach((view) => {
-
-        view.classList.add("hidden");
-    });
-
-    const target =
-        $(`#${viewName}View`);
-
-    if (target) {
-
-        target.classList.remove("hidden");
-    }
-
-    $$(".nav").forEach((button) => {
-
-        button.classList.toggle(
-            "active",
-            button.dataset.nav === viewName
-        );
-    });
-
-    if ($("#pageTitle")) {
-
-        const titles = {
-
-            home: "Home",
-            games: "Games",
-            search: "Search",
-            settings: "Settings"
-        };
-
-        $("#pageTitle").textContent =
-            titles[viewName] ||
-            viewName;
-    }
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
+  if (name === "search") {
+    setTimeout(() => $("#searchPageInput")?.focus(), 50);
+  }
 }
-
-/* =========================================================
-   OPEN GAME
-   ========================================================= */
 
 function openGame(game) {
+  if (!game.file) {
+    toast("This game has no HTML file path");
+    return;
+  }
 
-    if (!game) {
-        return;
-    }
-
-    currentGame =
-        game;
-
-    if ($("#playerTitle")) {
-
-        $("#playerTitle").textContent =
-            game.name;
-    }
-
-    const frame =
-        $("#gameFrame");
-
-    if (frame) {
-
-        frame.src =
-            game.file;
-    }
-
-    const modal =
-        $("#gameModal");
-
-    if (modal) {
-
-        modal.classList.remove(
-            "hidden"
-        );
-    }
-
-    document.body.style.overflow =
-        "hidden";
+  currentGame = game;
+  $("#playerTitle").textContent = game.name;
+  $("#gameFrame").src = game.file;
+  $("#gameModal").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
 }
-
-/* =========================================================
-   CLOSE GAME
-   ========================================================= */
 
 function closeGame() {
-
-    const frame =
-        $("#gameFrame");
-
-    if (frame) {
-
-        frame.src =
-            "about:blank";
-    }
-
-    const modal =
-        $("#gameModal");
-
-    if (modal) {
-
-        modal.classList.add(
-            "hidden"
-        );
-    }
-
-    document.body.style.overflow =
-        "";
-
-    currentGame =
-        null;
+  $("#gameModal").classList.add("hidden");
+  $("#gameFrame").src = "about:blank";
+  document.body.style.overflow = "";
+  currentGame = null;
 }
 
-/* =========================================================
-   RELOAD GAME
-   ========================================================= */
-
-function reloadGame() {
-
-    const frame =
-        $("#gameFrame");
-
-    if (!frame) {
-        return;
-    }
-
-    const currentSrc =
-        frame.src;
-
-    frame.src =
-        "about:blank";
-
-    setTimeout(() => {
-
-        frame.src =
-            currentSrc;
-
-    }, 30);
+function openEditor(game = null) {
+  currentGame = game;
+  $("#editorTitle").textContent = game ? "Edit game" : "Add game";
+  $("#gameNameInput").value = game?.name || "";
+  $("#gameIconInput").value = game?.icon || "🎮";
+  $("#gamePathInput").value = game?.file || "";
+  $("#gameImageInput").value = game?.image || "";
+  $("#gameDescInput").value = game?.desc || "Play now";
+  $("#deleteGameBtn").style.display = game ? "block" : "none";
+  $("#gameEditor").classList.remove("hidden");
 }
 
-/* =========================================================
-   FULLSCREEN
-   ========================================================= */
-
-function fullscreenGame() {
-
-    const frame =
-        $("#gameFrame");
-
-    if (!frame) {
-        return;
-    }
-
-    if (
-        frame.requestFullscreen
-    ) {
-
-        frame.requestFullscreen();
-
-    } else if (
-        frame.webkitRequestFullscreen
-    ) {
-
-        frame.webkitRequestFullscreen();
-    }
+function closeEditor() {
+  $("#gameEditor").classList.add("hidden");
+  currentGame = null;
 }
 
-/* =========================================================
-   RANDOM GAME
-   ========================================================= */
+function saveEditor() {
+  const name = $("#gameNameInput").value.trim();
+  const file = $("#gamePathInput").value.trim();
+  const image = $("#gameImageInput").value.trim();
+  const desc = $("#gameDescInput").value.trim() || "Play now";
+  const icon = $("#gameIconInput").value.trim() || "🎮";
 
-function randomGame() {
+  if (!name) return toast("Enter a game name");
+  if (!file) return toast("Enter the HTML file path");
 
-    if (games.length === 0) {
+  // The editor creates a browser-local entry. For a public GitHub Pages game,
+  // put the same information into games.json so everyone can see it.
+  const existingLocal = games.find(g => g.id === currentGame?.id);
 
-        showToast(
-            "No games available"
-        );
+  if (currentGame && existingLocal) {
+    Object.assign(existingLocal, { name, file, image, desc, icon, localOnly: true });
+    toast("Local game updated");
+  } else if (currentGame) {
+    toast("Published games are edited in games.json");
+    closeEditor();
+    return;
+  } else {
+    games.unshift({
+      id: `local-${Date.now()}`,
+      name,
+      file,
+      image,
+      desc,
+      icon,
+      added: Date.now(),
+      localOnly: true
+    });
+    toast("Added on this browser");
+  }
 
-        return;
-    }
-
-    const game =
-        games[
-            Math.floor(
-                Math.random() *
-                games.length
-            )
-        ];
-
-    openGame(game);
+  saveLocalGames();
+  applySettings();
+  render();
+  closeEditor();
 }
-
-/* =========================================================
-   GAME EDITOR
-   ========================================================= */
-
-function openGameEditor(game = null) {
-
-    currentGame =
-        game;
-
-    if ($("#editorTitle")) {
-
-        $("#editorTitle").textContent =
-            game
-                ? "Edit game"
-                : "Add a game";
-    }
-
-    if ($("#gameNameInput")) {
-
-        $("#gameNameInput").value =
-            game?.name || "";
-    }
-
-    if ($("#gameIconInput")) {
-
-        $("#gameIconInput").value =
-            game?.icon || "🎮";
-    }
-
-    if ($("#gamePathInput")) {
-
-        $("#gamePathInput").value =
-            game?.file || "";
-    }
-
-    if ($("#deleteGameBtn")) {
-
-        $("#deleteGameBtn").style.display =
-            game
-                ? "block"
-                : "none";
-    }
-
-    if ($("#gameEditor")) {
-
-        $("#gameEditor")
-            .classList
-            .remove("hidden");
-    }
-}
-
-/* =========================================================
-   CLOSE EDITOR
-   ========================================================= */
-
-function closeGameEditor() {
-
-    if ($("#gameEditor")) {
-
-        $("#gameEditor")
-            .classList
-            .add("hidden");
-    }
-
-    currentGame =
-        null;
-}
-
-/* =========================================================
-   SAVE GAME
-   ========================================================= */
-
-function saveGame() {
-
-    const name =
-        $("#gameNameInput")
-            ?.value
-            .trim();
-
-    const file =
-        $("#gamePathInput")
-            ?.value
-            .trim();
-
-    const icon =
-        $("#gameIconInput")
-            ?.value
-            .trim() ||
-        "🎮";
-
-    if (!name) {
-
-        showToast(
-            "Enter a game name"
-        );
-
-        return;
-    }
-
-    if (!file) {
-
-        showToast(
-            "Enter the game file path"
-        );
-
-        return;
-    }
-
-    if (currentGame) {
-
-        currentGame.name =
-            name;
-
-        currentGame.icon =
-            icon;
-
-        currentGame.file =
-            file;
-
-        showToast(
-            "Game updated"
-        );
-
-    } else {
-
-        games.unshift({
-
-            id:
-                "game-" +
-                Date.now(),
-
-            name:
-                name,
-
-            icon:
-                icon,
-
-            file:
-                file,
-
-            image:
-                "",
-
-            description:
-                "Play now",
-
-            added:
-                Date.now()
-        });
-
-        showToast(
-            "Game added"
-        );
-    }
-
-    saveData();
-
-    renderAll();
-
-    closeGameEditor();
-}
-
-/* =========================================================
-   DELETE GAME
-   ========================================================= */
 
 function deleteCurrentGame() {
+  if (!currentGame) return;
+  if (!currentGame.localOnly) {
+    toast("Delete it from games.json");
+    return;
+  }
 
-    if (!currentGame) {
-        return;
-    }
-
-    games =
-        games.filter(
-            (game) =>
-                game.id !==
-                currentGame.id
-        );
-
-    saveData();
-
-    renderAll();
-
-    closeGameEditor();
-
-    showToast(
-        "Game deleted"
-    );
+  games = games.filter(g => g.id !== currentGame.id);
+  saveLocalGames();
+  applySettings();
+  render();
+  closeEditor();
+  toast("Local game deleted");
 }
 
-/* =========================================================
-   NAVIGATION BUTTONS
-   ========================================================= */
+function bindNavigation() {
+  $$(".nav").forEach(btn => btn.addEventListener("click", () => showView(btn.dataset.nav)));
+  $(".brand").addEventListener("click", () => showView("home"));
+  $("#topSearch").onclick = () => showView("search");
+  $("#topSettings").onclick = () => showView("settings");
+  $("#browseBtn").onclick = () => showView("games");
+  $("#recentAll").onclick = () => showView("games");
+  $("#addGameBtn").onclick = () => openEditor();
+  $("#addGameSettings").onclick = () => openEditor();
+  $("#topRandom").onclick = () => {
+    if (games.length) openGame(games[Math.floor(Math.random() * games.length)]);
+    else toast("No games yet");
+  };
+  $("#topTheme").onclick = () => {
+    cfg.dark = !cfg.dark;
+    saveSettings();
+    applySettings();
+  };
+}
 
-function setupNavigation() {
+function bindSearch() {
+  $("#heroSearch").addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") return;
+    showView("search");
+    $("#searchPageInput").value = event.target.value;
+    renderSearch(event.target.value);
+  });
 
-    $$(".nav").forEach((button) => {
+  $("#gamesSearch").addEventListener("input", (event) => {
+    const q = event.target.value.trim().toLowerCase();
+    const result = q
+      ? games.filter(g => g.name.toLowerCase().includes(q) || g.desc.toLowerCase().includes(q))
+      : games;
+    render(result);
+  });
 
-        button.addEventListener(
-            "click",
-            () => {
+  $("#searchPageInput").addEventListener("input", (event) => renderSearch(event.target.value));
+}
 
-                showView(
-                    button.dataset.nav
-                );
-            }
-        );
+function bindPlayer() {
+  $("#playerBack").onclick = closeGame;
+  $("#playerReload").onclick = () => {
+    const frame = $("#gameFrame");
+    frame.src = frame.src;
+  };
+  $("#playerFullscreen").onclick = () => {
+    $("#gameFrame").requestFullscreen?.();
+  };
+  $("#playerDownload").onclick = () => {
+    if (!currentGame?.file) return;
+    const a = document.createElement("a");
+    a.href = currentGame.file;
+    a.download = `${currentGame.name.replace(/[^a-z0-9]+/gi, "-")}.html`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
+  $("#editorClose").onclick = closeEditor;
+  $("#editorCancel").onclick = closeEditor;
+  $("#saveGameBtn").onclick = saveEditor;
+  $("#deleteGameBtn").onclick = deleteCurrentGame;
+}
+
+function bindSettings() {
+  const bindInput = (id, key) => {
+    $(id).addEventListener("input", (event) => {
+      cfg[key] = event.target.value;
+      saveSettings();
+      applySettings();
+    });
+  };
+
+  bindInput("#setTabName", "tabName");
+  bindInput("#setSiteName", "siteName");
+  bindInput("#setHomeTitle", "homeTitle");
+  bindInput("#setHomeSub", "homeSub");
+  bindInput("#setGamesTitle", "gamesTitle");
+  bindInput("#setRecentTitle", "recentTitle");
+  bindInput("#setAccent", "accent");
+
+  $("#setCardSize").addEventListener("change", (event) => {
+    cfg.cardSize = event.target.value;
+    saveSettings();
+    applySettings();
+  });
+
+  $("#darkToggle").onclick = () => {
+    cfg.dark = !cfg.dark;
+    saveSettings();
+    applySettings();
+  };
+
+  $("#bgUpload").onchange = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      cfg.bg = reader.result;
+      saveSettings();
+      applySettings();
+      toast("Background saved in this browser");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  $("#clearBg").onclick = () => {
+    cfg.bg = "";
+    saveSettings();
+    applySettings();
+    toast("Background cleared");
+  };
+
+  $("#editModeBtn").onclick = () => {
+    editMode = !editMode;
+    document.body.classList.toggle("edit-mode", editMode);
+    toast(editMode ? "Edit mode on" : "Edit mode off");
+  };
+
+  $("#exportBtn").onclick = () => {
+    const data = JSON.stringify({ config: cfg, games }, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "applebottom-settings.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  $("#resetBtn").onclick = () => {
+    if (!confirm("Reset APPLEBOTTOM settings and local games?")) return;
+    localStorage.removeItem("applebottom_cfg");
+    localStorage.removeItem("applebottom_local_games");
+    location.reload();
+  };
+
+  $("#localGame").onchange = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (localGameUrl) URL.revokeObjectURL(localGameUrl);
+    localGameUrl = URL.createObjectURL(file);
+
+    games.unshift({
+      id: `local-file-${Date.now()}`,
+      name: file.name.replace(/\.html?$/i, ""),
+      icon: "📄",
+      image: "",
+      file: localGameUrl,
+      desc: "Local game",
+      added: Date.now(),
+      localOnly: true,
+      sessionOnly: true
     });
 
-    if ($("#topSearch")) {
+    // Blob URLs cannot be restored after refresh, so do not save this entry.
+    applySettings();
+    render();
+    toast("Local HTML opened for this session");
+  };
 
-        $("#topSearch").onclick =
-            () => showView("search");
+  $("#gameFileInput").onchange = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (localGameUrl) URL.revokeObjectURL(localGameUrl);
+    localGameUrl = URL.createObjectURL(file);
+    $("#gamePathInput").value = localGameUrl;
+  };
+}
+
+function bindKeyboard() {
+  let typed = "";
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      if (!$("#gameModal").classList.contains("hidden")) closeGame();
+      if (!$("#gameEditor").classList.contains("hidden")) closeEditor();
     }
 
-    if ($("#topSettings")) {
-
-        $("#topSettings").onclick =
-            () => showView("settings");
+    if (event.key === "Escape" && document.activeElement?.id === "gamesSearch") {
+      document.activeElement.value = "";
+      render();
+      document.activeElement.blur();
     }
 
-    if ($("#topRandom")) {
-
-        $("#topRandom").onclick =
-            randomGame;
+    if (document.activeElement?.tagName !== "INPUT" && event.key.length === 1) {
+      typed = (typed + event.key.toLowerCase()).slice(-7);
+      if (typed === "adminme") {
+        editMode = !editMode;
+        document.body.classList.toggle("edit-mode", editMode);
+        toast(editMode ? "Edit mode unlocked" : "Edit mode locked");
+        typed = "";
+      }
     }
-
-    if ($("#topTheme")) {
-
-        $("#topTheme").onclick =
-            () => {
-
-                settings.darkMode =
-                    !settings.darkMode;
-
-                saveData();
-
-                applySettings();
-
-                showToast(
-                    settings.darkMode
-                        ? "Dark mode"
-                        : "Light mode"
-                );
-            };
-    }
-
-    if ($("#browseBtn")) {
-
-        $("#browseBtn").onclick =
-            () => showView("games");
-    }
-
-    if ($("#recentAll")) {
-
-        $("#recentAll").onclick =
-            () => showView("games");
-    }
+  });
 }
 
-/* =========================================================
-   HOME SEARCH
-   ========================================================= */
-
-if ($("#heroSearch")) {
-
-    $("#heroSearch").addEventListener(
-        "keydown",
-        (event) => {
-
-            if (
-                event.key !== "Enter"
-            ) {
-                return;
-            }
-
-            const query =
-                event.target.value;
-
-            showView("search");
-
-            if ($("#searchPageInput")) {
-
-                $("#searchPageInput")
-                    .value =
-                    query;
-            }
-
-            renderSearch(query);
-        }
-    );
+function clock() {
+  const d = new Date();
+  $("#dateTime").textContent = d.toLocaleString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  }) + " — " + d.toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+  setTimeout(clock, 1000);
 }
 
-/* =========================================================
-   GAMES SEARCH
-   ========================================================= */
-
-if ($("#gamesSearch")) {
-
-    $("#gamesSearch").addEventListener(
-        "input",
-        (event) => {
-
-            const results =
-                searchGames(
-                    event.target.value
-                );
-
-            renderGames(results);
-        }
-    );
+async function init() {
+  bindNavigation();
+  bindSearch();
+  bindPlayer();
+  bindSettings();
+  bindKeyboard();
+  applySettings();
+  render();
+  clock();
+  await loadGames();
 }
 
-/* =========================================================
-   SEARCH PAGE INPUT
-   ========================================================= */
-
-if ($("#searchPageInput")) {
-
-    $("#searchPageInput").addEventListener(
-        "input",
-        (event) => {
-
-            renderSearch(
-                event.target.value
-            );
-        }
-    );
-}
-
-/* =========================================================
-   PLAYER CONTROLS
-   ========================================================= */
-
-if ($("#playerBack")) {
-
-    $("#playerBack").onclick =
-        closeGame;
-}
-
-if ($("#playerReload")) {
-
-    $("#playerReload").onclick =
-        reloadGame;
-}
-
-if ($("#playerFullscreen")) {
-
-    $("#playerFullscreen").onclick =
-        fullscreenGame;
-}
-
-if ($("#playerDownload")) {
-
-    $("#playerDownload").onclick =
-        () => {
-
-            if (!currentGame) {
-                return;
-            }
-
-            const gameFile =
-                currentGame.file;
-
-            if (!gameFile) {
-                return;
-            }
-
-            const link =
-                document.createElement("a");
-
-            link.href =
-                gameFile;
-
-            link.download =
-                currentGame.name
-                    .replace(
-                        /[^a-z0-9]+/gi,
-                        "-"
-                    )
-                    .toLowerCase()
-                + ".html";
-
-            document.body.appendChild(
-                link
-            );
-
-            link.click();
-
-            link.remove();
-        };
-}
-
-/* =========================================================
-   EDITOR CONTROLS
-   ========================================================= */
-
-if ($("#editorClose")) {
-
-    $("#editorClose").onclick =
-        closeGameEditor;
-}
-
-if ($("#editorCancel")) {
-
-    $("#editorCancel").onclick =
-        closeGameEditor;
-}
-
-if ($("#saveGameBtn")) {
-
-    $("#saveGameBtn").onclick =
-        saveGame;
-}
-
-if ($("#deleteGameBtn")) {
-
-    $("#deleteGameBtn").onclick =
-        deleteCurrentGame;
-}
-
-if ($("#addGameBtn")) {
-
-    $("#addGameBtn").onclick =
-        () => openGameEditor();
-}
-
-if ($("#addGameSettings")) {
-
-    $("#addGameSettings").onclick =
-        () => openGameEditor();
-}
-
-/* =========================================================
-   SETTINGS
-   ========================================================= */
-
-if ($("#setTabName")) {
-
-    $("#setTabName").addEventListener(
-        "input",
-        (event) => {
-
-            settings.tabName =
-                event.target.value;
-
-            saveData();
-
-            applySettings();
-        }
-    );
-}
-
-if ($("#setSiteName")) {
-
-    $("#setSiteName").addEventListener(
-        "input",
-        (event) => {
-
-            settings.siteName =
-                event.target.value;
-
-            saveData();
-
-            applySettings();
-        }
-    );
-}
-
-if ($("#setHomeTitle")) {
-
-    $("#setHomeTitle").addEventListener(
-        "input",
-        (event) => {
-
-            settings.homeTitle =
-                event.target.value;
-
-            saveData();
-
-            applySettings();
-        }
-    );
-}
-
-if ($("#setHomeSub")) {
-
-    $("#setHomeSub").addEventListener(
-        "input",
-        (event) => {
-
-            settings.homeSubtitle =
-                event.target.value;
-
-            saveData();
-
-            applySettings();
-        }
-    );
-}
-
-if ($("#setGamesTitle")) {
-
-    $("#setGamesTitle").addEventListener(
-        "input",
-        (event) => {
-
-            settings.gamesTitle =
-                event.target.value;
-
-            saveData();
-
-            applySettings();
-        }
-    );
-}
-
-if ($("#setRecentTitle")) {
-
-    $("#setRecentTitle").addEventListener(
-        "input",
-        (event) => {
-
-            settings.recentTitle =
-                event.target.value;
-
-            saveData();
-
-            applySettings();
-        }
-    );
-}
-
-if ($("#setAccent")) {
-
-    $("#setAccent").addEventListener(
-        "input",
-        (event) => {
-
-            settings.accent =
-                event.target.value;
-
-            saveData();
-
-            applySettings();
-        }
-    );
-}
-
-if ($("#setCardSize")) {
-
-    $("#setCardSize").addEventListener(
-        "change",
-        (event) => {
-
-            settings.cardSize =
-                event.target.value;
-
-            saveData();
-
-            applySettings();
-        }
-    );
-}
-
-if ($("#darkToggle")) {
-
-    $("#darkToggle").onclick =
-        () => {
-
-            settings.darkMode =
-                !settings.darkMode;
-
-            saveData();
-
-            applySettings();
-        };
-}
-
-/* =========================================================
-   BACKGROUND UPLOAD
-   ========================================================= */
-
-if ($("#bgUpload")) {
-
-    $("#bgUpload").addEventListener(
-        "change",
-        (event) => {
-
-            const file =
-                event.target.files[0];
-
-            if (!file) {
-                return;
-            }
-
-            const reader =
-                new FileReader();
-
-            reader.onload =
-                () => {
-
-                    settings.background =
-                        reader.result;
-
-                    saveData();
-
-                    applySettings();
-
-                    showToast(
-                        "Background saved"
-                    );
-                };
-
-            reader.readAsDataURL(file);
-        }
-    );
-}
-
-/* =========================================================
-   CLEAR BACKGROUND
-   ========================================================= */
-
-if ($("#clearBg")) {
-
-    $("#clearBg").onclick =
-        () => {
-
-            settings.background =
-                "";
-
-            saveData();
-
-            applySettings();
-
-            showToast(
-                "Background cleared"
-            );
-        };
-}
-
-/* =========================================================
-   EDIT MODE
-   ========================================================= */
-
-if ($("#editModeBtn")) {
-
-    $("#editModeBtn").onclick =
-        () => {
-
-            editMode =
-                !editMode;
-
-            document.body.classList.toggle(
-                "edit-mode",
-                editMode
-            );
-
-            showToast(
-                editMode
-                    ? "Edit mode enabled"
-                    : "Edit mode disabled"
-            );
-        };
-}
-
-/* =========================================================
-   LOCAL GAME FILE
-   ========================================================= */
-
-if ($("#localGame")) {
-
-    $("#localGame").addEventListener(
-        "change",
-        (event) => {
-
-            const file =
-                event.target.files[0];
-
-            if (!file) {
-                return;
-            }
-
-            const url =
-                URL.createObjectURL(file);
-
-            const localGame = {
-
-                id:
-                    "local-" +
-                    Date.now(),
-
-                name:
-                    file.name.replace(
-                        /\.html?$/i,
-                        ""
-                    ),
-
-                icon:
-                    "🎮",
-
-                image:
-                    "",
-
-                file:
-                    url,
-
-                description:
-                    "Local game",
-
-                added:
-                    Date.now()
-            };
-
-            games.unshift(
-                localGame
-            );
-
-            renderAll();
-
-            showToast(
-                "Local game added"
-            );
-        }
-    );
-}
-
-/* =========================================================
-   ADMINME
-   ========================================================= */
-
-let adminText = "";
-
-document.addEventListener(
-    "keydown",
-    (event) => {
-
-        const active =
-            document.activeElement;
-
-        const typing =
-            active &&
-            (
-                active.tagName === "INPUT" ||
-                active.tagName === "TEXTAREA"
-            );
-
-        if (!typing) {
-
-            adminText +=
-                event.key.toLowerCase();
-
-            adminText =
-                adminText.slice(-7);
-
-            if (
-                adminText === "adminme"
-            ) {
-
-                editMode =
-                    !editMode;
-
-                document.body.classList.toggle(
-                    "edit-mode",
-                    editMode
-                );
-
-                showToast(
-                    editMode
-                        ? "Edit mode enabled"
-                        : "Edit mode disabled"
-                );
-
-                adminText = "";
-            }
-        }
-
-        if (
-            event.key === "Escape"
-        ) {
-
-            closeGame();
-
-            closeGameEditor();
-        }
-    }
-);
-
-/* =========================================================
-   CLOCK
-   ========================================================= */
-
-function updateClock() {
-
-    const clock =
-        $("#dateTime");
-
-    if (!clock) {
-        return;
-    }
-
-    const now =
-        new Date();
-
-    const date =
-        now.toLocaleDateString(
-            undefined,
-            {
-                weekday: "long",
-                month: "long",
-                day: "numeric",
-                year: "numeric"
-            }
-        );
-
-    const time =
-        now.toLocaleTimeString(
-            undefined,
-            {
-                hour: "numeric",
-                minute: "2-digit"
-            }
-        );
-
-    clock.textContent =
-        `${date} — ${time}`;
-}
-
-/* =========================================================
-   START APP
-   ========================================================= */
-
-/*
-    Make absolutely sure the saved game list
-    is empty before the website renders.
-*/
-
-games = [];
-
-localStorage.setItem(
-    "applebottom_games",
-    JSON.stringify([])
-);
-
-setupNavigation();
-
-applySettings();
-
-renderAll();
-
-updateClock();
-
-setInterval(
-    updateClock,
-    1000
-);
+init();
