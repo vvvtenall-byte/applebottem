@@ -2,33 +2,14 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 
 /* =========================================================
-   APPLEBOTTOM GAME LIST
+   APPLEBOTTOM
+   GAME LIST IS CURRENTLY EMPTY
    ========================================================= */
 
-const defaultGames = [
-    {
-        id: "granny",
-        name: "Granny",
-        description: "Escape the house before Granny finds you.",
-        image: "images/granny.png",
-        icon: "👵",
-        file: "games/granny/index.html",
-        added: 2
-    },
-
-    {
-        id: "fleeingthecomplex",
-        name: "Fleeing the Complex",
-        description: "Help Henry Stickmin escape the complex.",
-        image: "images/fleeingthecomplex.png",
-        icon: "🕵️",
-        file: "games/fleeingthecomplex/index.html",
-        added: 1
-    }
-];
+let games = [];
 
 /* =========================================================
-   DEFAULT SETTINGS
+   SETTINGS
    ========================================================= */
 
 const defaultSettings = {
@@ -43,10 +24,6 @@ const defaultSettings = {
     darkMode: true,
     background: ""
 };
-
-/* =========================================================
-   LOAD SETTINGS
-   ========================================================= */
 
 let settings = {};
 
@@ -64,147 +41,25 @@ settings = {
 };
 
 /* =========================================================
-   LOAD SAVED GAMES
-   ========================================================= */
-
-let savedGames = [];
-
-try {
-    savedGames = JSON.parse(
-        localStorage.getItem("applebottom_games") || "[]"
-    );
-
-    if (!Array.isArray(savedGames)) {
-        savedGames = [];
-    }
-} catch (error) {
-    savedGames = [];
-}
-
-/* =========================================================
-   REMOVE OLD / UNWANTED GAMES
-   ========================================================= */
-
-const unwantedIds = [
-    "fnaf",
-    "five-nights-at-freddys",
-    "five-nights-at-freddy",
-
-    "apple-dodge",
-    "neon-click",
-    "memory",
-    "memory-grid",
-    "2048",
-    "2048-mini",
-    "2048-original",
-    "snake",
-    "flappy-bird"
-];
-
-/*
-    Remove old games AND prevent FNaF
-    from coming back from localStorage.
-*/
-
-savedGames = savedGames.filter((game) => {
-
-    if (!game) {
-        return false;
-    }
-
-    const id =
-        String(game.id || "").toLowerCase();
-
-    const name =
-        String(game.name || "").toLowerCase();
-
-    const file =
-        String(game.file || "").toLowerCase();
-
-    const image =
-        String(game.image || "").toLowerCase();
-
-    /* Remove FNaF */
-
-    if (
-        id.includes("fnaf") ||
-        name.includes("five nights at freddy") ||
-        file.includes("/fnaf/") ||
-        file.includes("\\fnaf\\") ||
-        image.includes("fnaf")
-    ) {
-        return false;
-    }
-
-    /* Remove old demo games */
-
-    if (unwantedIds.includes(id)) {
-        return false;
-    }
-
-    return true;
-});
-
-/* =========================================================
-   BUILD THE CURRENT GAME LIST
+   COMPLETELY CLEAR ALL OLD GAMES
    ========================================================= */
 
 /*
-    We specifically make Granny and Fleeing the Complex
-    available.
-
-    If they already exist in localStorage, we update
-    their information instead of creating duplicates.
+    This deletes Granny, Fleeing the Complex,
+    FNaF, and every other game that was previously
+    saved in localStorage.
 */
 
-const grannySaved =
-    savedGames.find(
-        (game) => game.id === "granny"
-    );
-
-const fleeingSaved =
-    savedGames.find(
-        (game) => game.id === "fleeingthecomplex"
-    );
-
-const grannyGame = {
-    ...defaultGames[0],
-    ...(grannySaved || {})
-};
-
-const fleeingGame = {
-    ...defaultGames[1],
-    ...(fleeingSaved || {})
-};
+localStorage.removeItem("applebottom_games");
 
 /*
-    Force the correct paths and thumbnails.
+    Also clear any older game-storage names
+    that may have been used by previous versions.
 */
 
-grannyGame.name = "Granny";
-grannyGame.image = "images/granny.png";
-grannyGame.file = "games/granny/index.html";
-grannyGame.icon = "👵";
-grannyGame.description =
-    "Escape the house before Granny finds you.";
-
-fleeingGame.name = "Fleeing the Complex";
-fleeingGame.image = "images/fleeingthecomplex.png";
-fleeingGame.file =
-    "games/fleeingthecomplex/index.html";
-fleeingGame.icon = "🕵️";
-fleeingGame.description =
-    "Help Henry Stickmin escape the complex.";
-
-/*
-    IMPORTANT:
-    Only these two games are loaded right now.
-*/
-
-let games = [
-    grannyGame,
-    fleeingGame
-];
+localStorage.removeItem("games");
+localStorage.removeItem("ubg_games");
+localStorage.removeItem("honeycomb_games");
 
 /* =========================================================
    STATE
@@ -225,13 +80,13 @@ function saveData() {
     );
 
     /*
-        Save only the current games.
-        This also permanently removes the old FNaF entry.
+        Always save the current game list.
+        Right now this is intentionally empty.
     */
 
     localStorage.setItem(
         "applebottom_games",
-        JSON.stringify(games)
+        JSON.stringify([])
     );
 }
 
@@ -278,14 +133,11 @@ function showToast(message) {
         window.appleToastTimer
     );
 
-    window.appleToastTimer =
-        setTimeout(() => {
+    window.appleToastTimer = setTimeout(() => {
 
-            toast.classList.remove(
-                "show"
-            );
+        toast.classList.remove("show");
 
-        }, 1800);
+    }, 1800);
 }
 
 /* =========================================================
@@ -313,18 +165,14 @@ function applySettings() {
         "card-large"
     );
 
-    if (
-        settings.cardSize === "small"
-    ) {
+    if (settings.cardSize === "small") {
 
         document.body.classList.add(
             "card-small"
         );
     }
 
-    if (
-        settings.cardSize === "large"
-    ) {
+    if (settings.cardSize === "large") {
 
         document.body.classList.add(
             "card-large"
@@ -358,26 +206,31 @@ function applySettings() {
     /* Branding */
 
     if ($("#brandName")) {
+
         $("#brandName").textContent =
             settings.siteName;
     }
 
     if ($("#heroName")) {
+
         $("#heroName").textContent =
             settings.homeTitle;
     }
 
     if ($("#heroSub")) {
+
         $("#heroSub").textContent =
             settings.homeSubtitle;
     }
 
     if ($("#gamesTitle")) {
+
         $("#gamesTitle").textContent =
             settings.gamesTitle;
     }
 
     if ($("#recentTitle")) {
+
         $("#recentTitle").textContent =
             settings.recentTitle;
     }
@@ -385,11 +238,13 @@ function applySettings() {
     /* Game count */
 
     if ($("#countPill")) {
+
         $("#countPill").textContent =
             games.length;
     }
 
     if ($("#gameCountSide")) {
+
         $("#gameCountSide").textContent =
             games.length;
     }
@@ -423,9 +278,7 @@ function applySettings() {
             settings.cardSize
     };
 
-    Object.entries(
-        settingInputs
-    ).forEach(
+    Object.entries(settingInputs).forEach(
         ([selector, value]) => {
 
             const input = $(selector);
@@ -452,9 +305,7 @@ function applySettings() {
 function createGameCard(game) {
 
     const card =
-        document.createElement(
-            "article"
-        );
+        document.createElement("article");
 
     card.className =
         "game-card";
@@ -469,10 +320,6 @@ function createGameCard(game) {
                     src="${game.image}"
                     alt="${escapeHTML(game.name)}"
                     loading="lazy"
-                    onerror="
-                        this.style.display='none';
-                        this.parentElement.classList.add('image-error');
-                    "
                 >
             `
             : "";
@@ -502,9 +349,7 @@ function createGameCard(game) {
         <div class="game-info">
 
             <div class="game-name">
-                ${escapeHTML(
-                    game.name
-                )}
+                ${escapeHTML(game.name)}
             </div>
 
             <div class="game-desc">
@@ -516,8 +361,6 @@ function createGameCard(game) {
 
         </div>
     `;
-
-    /* Open game */
 
     card.addEventListener(
         "click",
@@ -535,8 +378,6 @@ function createGameCard(game) {
         }
     );
 
-    /* Edit button */
-
     const editButton =
         card.querySelector(
             ".card-edit"
@@ -550,9 +391,7 @@ function createGameCard(game) {
 
                 event.stopPropagation();
 
-                openGameEditor(
-                    game
-                );
+                openGameEditor(game);
             }
         );
     }
@@ -575,32 +414,26 @@ function renderRecentlyAdded() {
 
     container.innerHTML = "";
 
-    const recentGames =
-        [...games]
-            .sort(
-                (a, b) =>
-                    (b.added || 0) -
-                    (a.added || 0)
-            )
-            .slice(0, 6);
+    /*
+        There are currently no games,
+        so nothing gets added here.
+    */
 
-    recentGames.forEach(
-        (game) => {
+    if (games.length === 0) {
 
-            container.appendChild(
-                createGameCard(game)
-            );
-        }
-    );
+        container.innerHTML = `
+            <div class="empty-state">
+                No games have been added yet.
+            </div>
+        `;
+    }
 }
 
 /* =========================================================
    ALL GAMES
    ========================================================= */
 
-function renderGames(
-    list = games
-) {
+function renderGames(list = games) {
 
     const container =
         $("#gamesGrid");
@@ -611,14 +444,12 @@ function renderGames(
 
     container.innerHTML = "";
 
-    list.forEach(
-        (game) => {
+    list.forEach((game) => {
 
-            container.appendChild(
-                createGameCard(game)
-            );
-        }
-    );
+        container.appendChild(
+            createGameCard(game)
+        );
+    });
 
     const empty =
         $("#gamesEmpty");
@@ -640,9 +471,7 @@ function renderAll() {
 
     renderRecentlyAdded();
 
-    renderGames(
-        games
-    );
+    renderGames(games);
 
     updateGameCount();
 }
@@ -681,25 +510,23 @@ function searchGames(query) {
         return games;
     }
 
-    return games.filter(
-        (game) => {
+    return games.filter((game) => {
 
-            const name =
-                String(
-                    game.name || ""
-                ).toLowerCase();
+        const name =
+            String(
+                game.name || ""
+            ).toLowerCase();
 
-            const description =
-                String(
-                    game.description || ""
-                ).toLowerCase();
+        const description =
+            String(
+                game.description || ""
+            ).toLowerCase();
 
-            return (
-                name.includes(search) ||
-                description.includes(search)
-            );
-        }
-    );
+        return (
+            name.includes(search) ||
+            description.includes(search)
+        );
+    });
 }
 
 /* =========================================================
@@ -720,14 +547,12 @@ function renderSearch(query) {
 
     container.innerHTML = "";
 
-    results.forEach(
-        (game) => {
+    results.forEach((game) => {
 
-            container.appendChild(
-                createGameCard(game)
-            );
-        }
-    );
+        container.appendChild(
+            createGameCard(game)
+        );
+    });
 
     if ($("#searchMeta")) {
 
@@ -746,35 +571,26 @@ function renderSearch(query) {
 
 function showView(viewName) {
 
-    $$(".view").forEach(
-        (view) => {
+    $$(".view").forEach((view) => {
 
-            view.classList.add(
-                "hidden"
-            );
-        }
-    );
+        view.classList.add("hidden");
+    });
 
     const target =
         $(`#${viewName}View`);
 
     if (target) {
 
-        target.classList.remove(
-            "hidden"
-        );
+        target.classList.remove("hidden");
     }
 
-    $$(".nav").forEach(
-        (button) => {
+    $$(".nav").forEach((button) => {
 
-            button.classList.toggle(
-                "active",
-                button.dataset.nav ===
-                viewName
-            );
-        }
-    );
+        button.classList.toggle(
+            "active",
+            button.dataset.nav === viewName
+        );
+    });
 
     if ($("#pageTitle")) {
 
@@ -795,19 +611,6 @@ function showView(viewName) {
         top: 0,
         behavior: "smooth"
     });
-
-    if (
-        viewName === "search" &&
-        $("#searchPageInput")
-    ) {
-
-        setTimeout(() => {
-
-            $("#searchPageInput")
-                .focus();
-
-        }, 100);
-    }
 }
 
 /* =========================================================
@@ -944,7 +747,7 @@ function fullscreenGame() {
 
 function randomGame() {
 
-    if (!games.length) {
+    if (games.length === 0) {
 
         showToast(
             "No games available"
@@ -968,9 +771,7 @@ function randomGame() {
    GAME EDITOR
    ========================================================= */
 
-function openGameEditor(
-    game = null
-) {
+function openGameEditor(game = null) {
 
     currentGame =
         game;
@@ -1074,33 +875,6 @@ function saveGame() {
         return;
     }
 
-    /*
-        Prevent FNaF from being added back.
-    */
-
-    const lowerName =
-        name.toLowerCase();
-
-    const lowerFile =
-        file.toLowerCase();
-
-    if (
-        lowerName.includes(
-            "five nights at freddy"
-        ) ||
-        lowerName === "fnaf" ||
-        lowerFile.includes(
-            "/fnaf/"
-        )
-    ) {
-
-        showToast(
-            "That game cannot be added"
-        );
-
-        return;
-    }
-
     if (currentGame) {
 
         currentGame.name =
@@ -1111,24 +885,6 @@ function saveGame() {
 
         currentGame.file =
             file;
-
-        if (
-            currentGame.id ===
-            "granny"
-        ) {
-
-            currentGame.image =
-                "images/granny.png";
-        }
-
-        if (
-            currentGame.id ===
-            "fleeingthecomplex"
-        ) {
-
-            currentGame.image =
-                "images/fleeingthecomplex.png";
-        }
 
         showToast(
             "Game updated"
@@ -1168,8 +924,6 @@ function saveGame() {
 
     saveData();
 
-    applySettings();
-
     renderAll();
 
     closeGameEditor();
@@ -1182,25 +936,6 @@ function saveGame() {
 function deleteCurrentGame() {
 
     if (!currentGame) {
-        return;
-    }
-
-    /*
-        Do not allow the two main games
-        to accidentally disappear from
-        the default list.
-    */
-
-    if (
-        currentGame.id === "granny" ||
-        currentGame.id ===
-        "fleeingthecomplex"
-    ) {
-
-        showToast(
-            "Use the files in GitHub to remove this game"
-        );
-
         return;
     }
 
@@ -1228,35 +963,29 @@ function deleteCurrentGame() {
 
 function setupNavigation() {
 
-    $$(".nav").forEach(
-        (button) => {
+    $$(".nav").forEach((button) => {
 
-            button.addEventListener(
-                "click",
-                () => {
+        button.addEventListener(
+            "click",
+            () => {
 
-                    showView(
-                        button.dataset.nav
-                    );
-                }
-            );
-        }
-    );
+                showView(
+                    button.dataset.nav
+                );
+            }
+        );
+    });
 
     if ($("#topSearch")) {
 
         $("#topSearch").onclick =
-            () => showView(
-                "search"
-            );
+            () => showView("search");
     }
 
     if ($("#topSettings")) {
 
         $("#topSettings").onclick =
-            () => showView(
-                "settings"
-            );
+            () => showView("settings");
     }
 
     if ($("#topRandom")) {
@@ -1288,17 +1017,13 @@ function setupNavigation() {
     if ($("#browseBtn")) {
 
         $("#browseBtn").onclick =
-            () => showView(
-                "games"
-            );
+            () => showView("games");
     }
 
     if ($("#recentAll")) {
 
         $("#recentAll").onclick =
-            () => showView(
-                "games"
-            );
+            () => showView("games");
     }
 }
 
@@ -1313,8 +1038,7 @@ if ($("#heroSearch")) {
         (event) => {
 
             if (
-                event.key !==
-                "Enter"
+                event.key !== "Enter"
             ) {
                 return;
             }
@@ -1322,9 +1046,7 @@ if ($("#heroSearch")) {
             const query =
                 event.target.value;
 
-            showView(
-                "search"
-            );
+            showView("search");
 
             if ($("#searchPageInput")) {
 
@@ -1333,9 +1055,7 @@ if ($("#heroSearch")) {
                     query;
             }
 
-            renderSearch(
-                query
-            );
+            renderSearch(query);
         }
     );
 }
@@ -1355,15 +1075,13 @@ if ($("#gamesSearch")) {
                     event.target.value
                 );
 
-            renderGames(
-                results
-            );
+            renderGames(results);
         }
     );
 }
 
 /* =========================================================
-   SEARCH PAGE
+   SEARCH PAGE INPUT
    ========================================================= */
 
 if ($("#searchPageInput")) {
@@ -1418,9 +1136,7 @@ if ($("#playerDownload")) {
             }
 
             const link =
-                document.createElement(
-                    "a"
-                );
+                document.createElement("a");
 
             link.href =
                 gameFile;
@@ -1665,9 +1381,7 @@ if ($("#bgUpload")) {
                     );
                 };
 
-            reader.readAsDataURL(
-                file
-            );
+            reader.readAsDataURL(file);
         }
     );
 }
@@ -1720,7 +1434,7 @@ if ($("#editModeBtn")) {
 }
 
 /* =========================================================
-   LOCAL GAME
+   LOCAL GAME FILE
    ========================================================= */
 
 if ($("#localGame")) {
@@ -1737,9 +1451,7 @@ if ($("#localGame")) {
             }
 
             const url =
-                URL.createObjectURL(
-                    file
-                );
+                URL.createObjectURL(file);
 
             const localGame = {
 
@@ -1811,8 +1523,7 @@ document.addEventListener(
                 adminText.slice(-7);
 
             if (
-                adminText ===
-                "adminme"
+                adminText === "adminme"
             ) {
 
                 editMode =
@@ -1833,11 +1544,8 @@ document.addEventListener(
             }
         }
 
-        /* ESC */
-
         if (
-            event.key ===
-            "Escape"
+            event.key === "Escape"
         ) {
 
             closeGame();
@@ -1892,10 +1600,16 @@ function updateClock() {
    ========================================================= */
 
 /*
-    Save the cleaned list immediately.
+    Make absolutely sure the saved game list
+    is empty before the website renders.
 */
 
-saveData();
+games = [];
+
+localStorage.setItem(
+    "applebottom_games",
+    JSON.stringify([])
+);
 
 setupNavigation();
 
