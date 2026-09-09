@@ -153,9 +153,10 @@ function createCard(game) {
   el.className = "game-card";
   el.dataset.gameId = game.id;
 
+  const fallbackIcon = escapeHtml(game.icon || "🎮");
   const thumbnail = game.image
-    ? `<img src="${escapeHtml(game.image)}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='${escapeHtml(game.icon || "🎮")}'">`
-    : escapeHtml(game.icon || "🎮");
+    ? `<img src="${escapeHtml(game.image)}" alt="" loading="lazy" class="game-thumb-image">`
+    : `<div class="thumb-fallback"><span>${fallbackIcon}</span></div>`;
 
   el.innerHTML = `
     <button class="card-edit" title="Edit game" type="button">✎</button>
@@ -165,6 +166,16 @@ function createCard(game) {
       <div class="game-desc">${escapeHtml(game.desc || "Play now")}</div>
     </div>
   `;
+
+  const thumbImage = el.querySelector(".game-thumb-image");
+  if (thumbImage) {
+    thumbImage.addEventListener("error", () => {
+      const thumb = el.querySelector(".thumb");
+      if (!thumb || thumb.dataset.fallbackShown === "1") return;
+      thumb.dataset.fallbackShown = "1";
+      thumb.innerHTML = `<div class="thumb-fallback"><span>${fallbackIcon}</span></div>`;
+    }, { once: true });
+  }
 
   el.addEventListener("click", (event) => {
     if (event.target.closest(".card-edit")) return;

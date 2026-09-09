@@ -93,8 +93,8 @@
       "id": "iron-lung",
       "name": "Iron Lung",
       "description": "Play Iron Lung.",
-      "image": "Ironlung.png",
-      "icon": "🎮",
+      "image": "IronLung.png",
+      "icon": "🌊",
       "file": "Iron Lung.html",
       "added": 17
     },
@@ -183,8 +183,8 @@
       "id": "mario-sandbox",
       "name": "Mario Sandbox",
       "description": "Play Mario Sandbox.",
-      "image": "MarioSandbox.png",
-      "icon": "🎮",
+      "image": "",
+      "icon": "🍄",
       "file": "Mario Sandbox.html",
       "added": 41
     },
@@ -399,8 +399,8 @@
       "id": "rabbids-travel-in-time",
       "name": "Rabbids Travel In Time",
       "description": "Play Rabbids Travel In Time.",
-      "image": "RabbidsTravelInTime.png",
-      "icon": "🎮",
+      "image": "",
+      "icon": "🐰",
       "file": "Rabbids Travel In Time.html",
       "added": 71
     },
@@ -453,8 +453,8 @@
       "id": "slendytubbies-ii",
       "name": "Slendytubbies II",
       "description": "Play Slendytubbies II.",
-      "image": "SlendytubbiesII.png",
-      "icon": "🎮",
+      "image": "",
+      "icon": "👾",
       "file": "Slendytubbies II.html",
       "added": 79
     },
@@ -516,8 +516,8 @@
       "id": "stardew-valley",
       "name": "Stardew Valley",
       "description": "Play Stardew Valley.",
-      "image": "StardewValley.png",
-      "icon": "🎮",
+      "image": "StardrewValley.png",
+      "icon": "🌱",
       "file": "StardrewValley/Stardrew Valley.html",
       "added": 86
     },
@@ -705,8 +705,8 @@
       "id": "wordle",
       "name": "Wordle",
       "description": "Play Wordle.",
-      "image": "wordle.png",
-      "icon": "🎮",
+      "image": "",
+      "icon": "🔤",
       "file": "Wordle.html",
       "added": 114
     }
